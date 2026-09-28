@@ -1,0 +1,167 @@
+---
+// 共通レイアウト。デザインは D-004「夜空パステル」（03_design/01_デザイン方針_draft.md 案A）。
+import { CONTACT_EMAIL, DEFAULT_OG_IMAGE, SECTION_LINKS, SITE_NAME, SOCIAL_LINKS, TITLE_SUFFIX } from '../lib/site';
+import { LOGO } from '../lib/assets';
+
+// ロゴは高さ40pxで表示する（幅は縦横比から計算）。
+const LOGO_HEIGHT = 40;
+const LOGO_WIDTH = Math.round((LOGO.width / LOGO.height) * LOGO_HEIGHT);
+
+interface Props {
+  title?: string;
+  description?: string;
+  /** OGP画像のパス（/og/...）。省略すると共通の画像 */
+  ogImage?: string;
+  /** 検索に出さないページ（画像の保存用ページなど） */
+  noindex?: boolean;
+}
+
+const {
+  title,
+  description = '16の星のいきものと12星座で読み解く、192通りのあなたの取扱説明書。',
+  ogImage = DEFAULT_OG_IMAGE,
+  noindex = false,
+} = Astro.props;
+const pageTitle = title ? `${title}｜${TITLE_SUFFIX}` : SITE_NAME;
+// astro.config.mjs の site を基準に、絶対URLにする（OGPは絶対URLが必要）。
+const pageUrl = new URL(Astro.url.pathname, Astro.site).href;
+const ogImageUrl = new URL(ogImage, Astro.site).href;
+---
+
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    {/* favicon.svg は symbol.svg の簡略版（小さな✦を省いたもの）。.ico と apple-touch-icon は npm run sync-assets で生成 */}
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex" />}
+    <meta name="theme-color" content="#1b1f3b" />
+    <meta name="color-scheme" content="dark" />
+    <link rel="canonical" href={pageUrl} />
+    <meta property="og:type" content={Astro.url.pathname === '/' ? 'website' : 'article'} />
+    <meta property="og:site_name" content={SITE_NAME} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={pageUrl} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content={SOCIAL_LINKS.find((s) => s.label === 'X')?.handle} />
+  </head>
+  <body>
+    <header class="site-header">
+      <a href="/" class="logo">
+        <img src={LOGO.src} alt={SITE_NAME} width={LOGO_WIDTH} height={LOGO_HEIGHT} />
+      </a>
+      <nav class="header-nav" aria-label="メニュー">
+        {SECTION_LINKS.map((l) => (
+          <a href={l.href} aria-current={Astro.url.pathname.replace(/\/?$/, '/') === l.href ? 'page' : undefined}>{l.label}</a>
+        ))}
+      </nav>
+    </header>
+    <main>
+      <slot />
+    </main>
+    <footer class="site-footer">
+      <p>
+        ※本診断・占いはエンターテインメントを目的としたものであり、結果を保証するものではありません。本サービスは公式のMBTI®とは関係ありません。
+      </p>
+      <nav class="footer-links" aria-label="読みもの">
+        <a href="/shindan/">診断する</a>
+        {SECTION_LINKS.map((l) => <a href={l.href}>{l.label}</a>)}
+      </nav>
+      <nav class="footer-links" aria-label="サイト情報">
+        <a href="/about/">運営者情報</a>
+        <a href="/terms/">利用規約</a>
+        <a href="/privacy/">プライバシーポリシー</a>
+        <a href={`mailto:${CONTACT_EMAIL}`}>お問い合わせ</a>
+      </nav>
+      <p class="social">
+        {SOCIAL_LINKS.map((s) => (
+          <a href={s.url} target="_blank" rel="noopener">{s.label} {s.handle}</a>
+        ))}
+      </p>
+      <p>© {SITE_NAME}</p>
+    </footer>
+  </body>
+</html>
+
+<style is:global>
+  /* 夜空パステル：濃紺の夜空に、ラベンダー・ミント・ピーチのパステルとゴールドのアクセント。
+     夜空がブランドの世界観なので、ライト／ダークの切り替えはせず常に夜の配色にする。 */
+  :root {
+    --night: #1b1f3b;
+    --night-deep: #11142a;
+    --surface: rgba(255, 255, 255, 0.06);
+    --surface-strong: rgba(255, 255, 255, 0.1);
+    --text: #f1efff;
+    --muted: #b9b6d8;
+    --lavender: #c9b8ff;
+    --mint: #a8e6cf;
+    --peach: #ffc8a8;
+    --gold: #f2d27a;
+    --accent: var(--lavender);
+    --accent-soft: rgba(201, 184, 255, 0.18);
+    --border: rgba(201, 184, 255, 0.22);
+    --danger: #ff9b9b;
+  }
+  * { box-sizing: border-box; }
+  html { background: var(--night-deep); }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    color: var(--text);
+    font-family: system-ui, -apple-system, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+    line-height: 1.8;
+    background:
+      radial-gradient(1px 1px at 12% 18%, #fff8 50%, transparent 51%),
+      radial-gradient(1px 1px at 72% 9%, #fff9 50%, transparent 51%),
+      radial-gradient(1.5px 1.5px at 38% 42%, #f2d27a99 50%, transparent 51%),
+      radial-gradient(1px 1px at 88% 36%, #fff7 50%, transparent 51%),
+      radial-gradient(1px 1px at 22% 71%, #fff6 50%, transparent 51%),
+      radial-gradient(1.5px 1.5px at 64% 83%, #c9b8ff99 50%, transparent 51%),
+      radial-gradient(1px 1px at 93% 67%, #fff7 50%, transparent 51%),
+      radial-gradient(ellipse at 50% -10%, #2d2a5e 0%, transparent 60%),
+      linear-gradient(180deg, var(--night) 0%, var(--night-deep) 100%);
+    background-attachment: fixed;
+  }
+  main { max-width: 720px; margin: 0 auto; padding: 16px 16px 48px; }
+  a { color: var(--mint); }
+  h1 { font-size: 1.6rem; line-height: 1.4; }
+  h2 { font-size: 1.2rem; margin-top: 2rem; color: var(--lavender); }
+  .site-header {
+    padding: 12px 16px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px 16px;
+  }
+  .header-nav { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 0.9rem; }
+  .header-nav a { color: var(--text); text-decoration: none; }
+  .header-nav a:hover, .header-nav a[aria-current='page'] { color: var(--mint); text-decoration: underline; }
+  .logo { display: inline-block; vertical-align: middle; }
+  .logo img { display: block; height: 40px; width: auto; }
+  .site-footer { padding: 24px 16px; border-top: 1px solid var(--border); color: var(--muted); font-size: 0.8rem; text-align: center; }
+  .footer-links { display: flex; justify-content: center; gap: 8px 16px; flex-wrap: wrap; margin: 12px 0; }
+  .social { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 16px; backdrop-filter: blur(4px); }
+  .button {
+    display: inline-block; padding: 12px 28px; border-radius: 999px; border: none;
+    background: linear-gradient(135deg, var(--lavender), var(--peach));
+    color: var(--night); font-size: 1rem; font-weight: 700; text-decoration: none; cursor: pointer;
+    box-shadow: 0 4px 20px rgba(201, 184, 255, 0.35);
+  }
+  .button.secondary { background: transparent; color: var(--text); border: 1px solid var(--lavender); box-shadow: none; }
+  .muted { color: var(--muted); font-size: 0.9rem; }
+  .error { color: var(--danger); font-weight: 600; min-height: 1.5em; }
+  select {
+    font-size: 1rem; padding: 8px; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--night); color: var(--text);
+  }
+  input[type='radio'] { accent-color: var(--lavender); }
+  .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+</style>

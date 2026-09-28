@@ -1,0 +1,48 @@
+---
+// いきもの図鑑の一覧。16体を大きく並べ、口ぐせ（02_content/10_図鑑.json。無ければコンセプト）を添える。
+import Base from '../layouts/Base.astro';
+import Character from '../components/Character.astro';
+import { getCharacters } from '../lib/characters';
+import { getZukan } from '../lib/zukan';
+
+const items = getCharacters().map((t) => ({ t, z: getZukan(t.slug) }));
+---
+
+<Base title="いきもの図鑑" description="ほしのかたちの16の星のいきもの。すみか・好きなもの・口ぐせ・相棒など、それぞれのいきものの素顔を図鑑で紹介します。">
+  <h1>いきもの図鑑</h1>
+  <p class="muted">16の性格タイプを、星を守りにもつ16の「星のいきもの」で表しています。気になるいきものを選ぶと、すみかや好きなもの、口ぐせ、相棒などが見られます。</p>
+  <ul class="zukan-grid">
+    {items.map(({ t, z }) => (
+      <li>
+        <a class="card zukan-tile" href={z ? `/type/${t.slug}/#zukan` : `/type/${t.slug}/`} style={`--theme: ${t.theme.main}`}>
+          <Character type={t} size={160} class="zukan-character" decorative />
+          <strong class="name">{t.name}</strong>
+          <span class="guardian">守護星：{t.guardian}</span>
+          {z?.kuchiguse ? (
+            <span class="kuchiguse">「{z.kuchiguse.replace(/^「|」$/g, '')}」</span>
+          ) : (
+            <span class="muted">{t.concept}</span>
+          )}
+        </a>
+      </li>
+    ))}
+  </ul>
+  <p>いきものどうしの関係は<a href="/aisho/">16いきもの相性早見表</a>で見られます。</p>
+  <p><a class="button" href="/shindan/">自分の星のいきものを診断する</a></p>
+</Base>
+
+<style>
+  .zukan-grid { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
+  .zukan-tile {
+    display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px; height: 100%;
+    text-decoration: none; color: var(--text); border-top: 3px solid var(--theme);
+  }
+  .zukan-tile :global(.zukan-character) { width: 160px; margin-bottom: 4px; }
+  .name { font-size: 1.05rem; }
+  .guardian { font-size: 0.8rem; color: var(--theme); }
+  .kuchiguse { font-weight: 700; }
+  @media (max-width: 480px) {
+    .zukan-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .zukan-tile :global(.zukan-character) { width: 120px; }
+  }
+</style>

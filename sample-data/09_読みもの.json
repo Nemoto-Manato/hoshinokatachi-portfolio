@@ -1,0 +1,32 @@
+[
+  {
+    "slug": "about-16types",
+    "title": "サンプルの読みもの1",
+    "description": "サンプルの読みものの説明文です。",
+    "sections": [
+      {
+        "heading": "サンプルの見出し1",
+        "body": "サンプルの本文です（about-16types・段落1）。\nサンプルの本文です（about-16types・段落2）。"
+      },
+      {
+        "heading": "サンプルの見出し2",
+        "body": "サンプルの本文です（about-16types・段落1）。\nサンプルの本文です（about-16types・段落2）。"
+      }
+    ]
+  },
+  {
+    "slug": "four-elements",
+    "title": "サンプルの読みもの2",
+    "description": "サンプルの読みものの説明文です。",
+    "sections": [
+      {
+        "heading": "サンプルの見出し1",
+        "body": "サンプルの本文です（four-elements・段落1）。\nサンプルの本文です（four-elements・段落2）。"
+      },
+      {
+        "heading": "サンプルの見出し2",
+        "body": "サンプルの本文です（four-elements・段落1）。\nサンプルの本文です（four-elements・段落2）。"
+      }
+    ]
+  }
+]

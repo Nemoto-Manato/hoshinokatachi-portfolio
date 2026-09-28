@@ -1,0 +1,88 @@
+---
+// 診断ページ。回答と生年月日はブラウザ内だけで処理し、結果ページへはタイプと星座のslugだけを渡す（法務判断書 #4）。
+import Base from '../layouts/Base.astro';
+import BirthdayField from '../components/BirthdayField.astro';
+import WithBanner from '../components/WithBanner.astro';
+import { CHOICES, DISPLAY_ORDER, QUESTIONS } from '../lib/quiz';
+
+const questions = DISPLAY_ORDER.map((id) => QUESTIONS.find((q) => q.id === id)!);
+---
+
+<Base title="診断する">
+  <h1>星のいきもの診断</h1>
+  <WithBanner />
+  <p class="muted">直感で答えてください。全20問です。自分のタイプを知っている人は<a href="/select/" data-keep-with="select">タイプを選ぶだけ</a>でもOK。</p>
+
+  <form id="shindan" novalidate>
+    <ol class="questions">
+      {questions.map((q, i) => (
+        <li class="card question">
+          <p><span class="muted">Q{i + 1}.</span> {q.text}</p>
+          <div class="choices">
+            {CHOICES.map((c) => (
+              <label>
+                <input type="radio" name={`q${q.id}`} value={c.value} />
+                <span>{c.label}</span>
+              </label>
+            ))}
+          </div>
+        </li>
+      ))}
+    </ol>
+
+    <BirthdayField />
+
+    <p id="error" class="error" role="alert"></p>
+    <div class="submit"><button class="button" type="submit" data-with-label="相性を見る">結果を見る</button></div>
+  </form>
+</Base>
+
+<script>
+  import { QUESTIONS, scoreTypeCode } from '../lib/quiz';
+  import { getTypeByCode } from '../lib/types';
+  import { combinationSlug } from '../lib/combination';
+  import { resolveSign, watchBirthday } from '../lib/birthday-form';
+  import { destinationAfterDiagnosis } from '../lib/match';
+  import { setupWith } from '../lib/with-client';
+
+  const form = document.getElementById('shindan') as HTMLFormElement;
+  const errorEl = document.getElementById('error')!;
+  watchBirthday(form);
+  // 相性診断に招かれて来たとき（?with=…）は、送信後に相性ページへ進む（不正な値は無視してふつうの診断にする）
+  const withRef = setupWith();
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    errorEl.textContent = '';
+    const data = new FormData(form);
+
+    const answers: Record<number, number> = {};
+    const unanswered: number[] = [];
+    for (const q of QUESTIONS) {
+      const v = data.get(`q${q.id}`);
+      if (v === null) unanswered.push(q.id);
+      else answers[q.id] = Number(v);
+    }
+    if (unanswered.length > 0) {
+      errorEl.textContent = `まだ答えていない質問が${unanswered.length}問あります。`;
+      form.querySelector(`[name="q${unanswered[0]}"]`)?.closest('li')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+
+    const sign = resolveSign(form);
+    if (sign.status === 'error') errorEl.textContent = sign.message;
+    if (sign.status !== 'ok') return;
+
+    const type = getTypeByCode(scoreTypeCode(answers))!;
+    location.href = destinationAfterDiagnosis(combinationSlug(type.slug, sign.signId), withRef);
+  });
+</script>
+
+<style>
+  .questions { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+  .question p { margin: 0 0 8px; font-weight: 600; }
+  .choices { display: flex; flex-direction: column; gap: 4px; }
+  .choices label { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 8px; cursor: pointer; }
+  .choices label:has(input:checked) { background: var(--accent-soft); }
+  .submit { text-align: center; margin-top: 16px; }
+</style>

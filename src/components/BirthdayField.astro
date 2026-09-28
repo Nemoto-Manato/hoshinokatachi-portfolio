@@ -1,0 +1,35 @@
+---
+// 生年月日の入力欄。診断ページとタイプ選択ページで共通。判定は lib/birthday-form.ts。
+import { MAX_YEAR, MIN_YEAR } from '../lib/zodiac';
+
+const years = Array.from({ length: MAX_YEAR - MIN_YEAR + 1 }, (_, i) => MAX_YEAR - i);
+---
+
+<section class="card birthday-field">
+  <h2>生年月日</h2>
+  <p class="muted">星座の判定に使います。入力した生年月日は、この端末の中だけで使い、サーバーには送信しません。</p>
+  <div class="selects">
+    <select name="year" aria-label="年">
+      <option value="">年</option>
+      {years.map((y) => <option value={y}>{y}</option>)}
+    </select>
+    <select name="month" aria-label="月">
+      <option value="">月</option>
+      {Array.from({ length: 12 }, (_, i) => <option value={i + 1}>{i + 1}</option>)}
+    </select>
+    <select name="day" aria-label="日">
+      <option value="">日</option>
+      {Array.from({ length: 31 }, (_, i) => <option value={i + 1}>{i + 1}</option>)}
+    </select>
+  </div>
+  <div data-cusp class="cusp" hidden></div>
+</section>
+
+<style>
+  .birthday-field { margin-top: 16px; }
+  .birthday-field h2 { margin-top: 0; }
+  .selects { display: flex; gap: 8px; flex-wrap: wrap; }
+  .cusp { margin-top: 16px; }
+  .cusp :global(label) { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 8px; cursor: pointer; }
+  .cusp :global(label:has(input:checked)) { background: var(--accent-soft); }
+</style>

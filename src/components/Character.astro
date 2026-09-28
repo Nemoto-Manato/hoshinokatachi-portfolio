@@ -1,0 +1,32 @@
+---
+// キャラクター（星のいきもの）の画像。width/height を必ず入れて、読み込み中のレイアウトのずれを防ぐ。
+import { characterAlt, characterSrc } from '../lib/assets';
+import type { TypeCharacter } from '../lib/types';
+
+interface Props {
+  type: TypeCharacter;
+  /** 表示の大きさ（px）。正方形 */
+  size: number;
+  /** 画面の最初に見える画像は eager にする */
+  loading?: 'lazy' | 'eager';
+  class?: string;
+  /** すぐ横にキャラ名の文字があるカードでは true にして alt を空にする（読み上げの重複を防ぐ） */
+  decorative?: boolean;
+}
+
+const { type, size, loading = 'lazy', class: className, decorative = false } = Astro.props;
+---
+
+<img
+  class:list={['character', className]}
+  src={characterSrc(type.slug)}
+  alt={decorative ? '' : characterAlt(type)}
+  width={size}
+  height={size}
+  loading={loading}
+  decoding="async"
+/>
+
+<style>
+  .character { display: block; max-width: 100%; height: auto; aspect-ratio: 1 / 1; }
+</style>

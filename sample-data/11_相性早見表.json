@@ -1,0 +1,74 @@
+{
+  "_note": "公開用のダミーデータ。形式だけ本番と同じで、文章はすべて仮のもの。",
+  "labels": {
+    "pittari": {
+      "name": "ラベルA",
+      "icon": "●",
+      "description": "サンプルのラベルの説明です（ラベルA）。"
+    },
+    "oginau": {
+      "name": "ラベルB",
+      "icon": "▲",
+      "description": "サンプルのラベルの説明です（ラベルB）。"
+    },
+    "shigeki": {
+      "name": "ラベルC",
+      "icon": "■",
+      "description": "サンプルのラベルの説明です（ラベルC）。"
+    },
+    "sodatsu": {
+      "name": "ラベルD",
+      "icon": "◆",
+      "description": "サンプルのラベルの説明です（ラベルD）。"
+    },
+    "nitamono": {
+      "name": "ラベルE",
+      "icon": "★",
+      "description": "サンプルのラベルの説明です（ラベルE）。"
+    }
+  },
+  "pairs": [
+    {
+      "a": "polaris",
+      "b": "sun",
+      "label": "pittari",
+      "text": "サンプルの相性の文章です。"
+    },
+    {
+      "a": "sun",
+      "b": "sun",
+      "label": "nitamono",
+      "text": "サンプルの相性の文章です。"
+    },
+    {
+      "a": "sun",
+      "b": "moon",
+      "label": "oginau",
+      "text": "サンプルの相性の文章です。"
+    },
+    {
+      "a": "moon",
+      "b": "moon",
+      "label": "nitamono",
+      "text": "サンプルの相性の文章です。"
+    },
+    {
+      "a": "sun",
+      "b": "comet",
+      "label": "shigeki",
+      "text": "サンプルの相性の文章です。"
+    },
+    {
+      "a": "moon",
+      "b": "venus",
+      "label": "sodatsu",
+      "text": "サンプルの相性の文章です。"
+    },
+    {
+      "a": "polaris",
+      "b": "moon",
+      "label": "sodatsu",
+      "text": "サンプルの相性の文章です。"
+    }
+  ]
+}

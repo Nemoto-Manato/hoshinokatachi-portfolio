@@ -1,0 +1,42 @@
+---
+import Base from '../../layouts/Base.astro';
+import ArticleSections from '../../components/ArticleSections.astro';
+import { getColumns, getSignArticle } from '../../lib/articles';
+import { COMBINATIONS } from '../../lib/combination';
+import { getCharacter, resultTitle } from '../../lib/characters';
+import { SIGNS, type Sign } from '../../lib/signs';
+
+export function getStaticPaths() {
+  return SIGNS.map((s) => ({ params: { slug: s.id }, props: { s } }));
+}
+
+const { s } = Astro.props as { s: Sign };
+const combos = COMBINATIONS.filter((c) => c.sign.id === s.id);
+const article = getSignArticle(s.id);
+const related = getColumns().filter((c) => ['zodiac-cusp', 'overlap-star', 'guardian-and-ruler'].includes(c.slug));
+---
+
+<Base title={s.name} description={`${s.name}（${s.period}）の性格と、16の星のいきものとの組み合わせ。`}>
+  <h1>{s.name}</h1>
+  <p class="muted">{s.period}（年によって1日前後ずれます）</p>
+  <p>エレメント：{s.element}／区分：{s.modality}／支配星：{s.rulerName}</p>
+  <p>キーワード：{s.keywords.join('、')}</p>
+
+  <ArticleSections sections={article} />
+
+  <h2>{s.name} × 16の星のいきもの</h2>
+  <ul>
+    {combos.map((c) => (
+      <li><a href={`/result/${c.slug}/`}>{resultTitle(getCharacter(c.type.slug), s.name)}</a>{c.overlap && ' ★重なり星'}</li>
+    ))}
+  </ul>
+  <p><a class="button" href="/shindan/">自分の星のいきものを診断する</a></p>
+  {related.length > 0 && (
+    <>
+      <h2>あわせて読みたい</h2>
+      <ul>
+        {related.map((c) => <li><a href={`/column/${c.slug}/`}>{c.title}</a></li>)}
+      </ul>
+    </>
+  )}
+</Base>

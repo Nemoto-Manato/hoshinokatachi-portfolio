@@ -1,0 +1,72 @@
+---
+// 結果カード（縦長 1080×1920）を表示して、保存・シェアしてもらうページ（192ページ）。
+// スマホでは画像の長押しで保存できるように、画像そのものを大きく表示する。
+// 「画像をシェア」は Web Share API（ファイルつき）が使える端末だけで表示し、使えなければ保存用のリンクを出す。
+// 検索には出さない（noindex）。個人情報は扱わない。
+import Base from '../../layouts/Base.astro';
+import { COMBINATIONS, type Combination } from '../../lib/combination';
+import { getCharacter, resultTitle } from '../../lib/characters';
+import { resultOgImage, resultStoryImage, shareText } from '../../lib/site';
+import { STORY_HEIGHT, STORY_WIDTH } from '../../lib/og';
+
+export function getStaticPaths() {
+  return COMBINATIONS.map((c) => ({ params: { slug: c.slug }, props: { c } }));
+}
+
+const { c } = Astro.props as { c: Combination };
+const ch = getCharacter(c.type.slug);
+const title = resultTitle(ch, c.sign.name);
+const image = resultStoryImage(c.slug);
+const resultUrl = new URL(`/result/${c.slug}/`, Astro.site).href;
+---
+
+<Base title={`${title}の結果カード`} description={`${title}の結果カード（画像）。保存してシェアできます。`} ogImage={resultOgImage(c.slug)} noindex>
+  <h1 class="title">{title}の結果カード</h1>
+  <p class="muted lead">画像を長押し（パソコンは右クリック）して保存し、Xやストーリーズでシェアしてね。</p>
+
+  <figure class="story">
+    <img src={image} alt={`${title}の結果カード。${ch.name}のキャラクターと、あるある3つ`} width={STORY_WIDTH} height={STORY_HEIGHT} loading="eager" />
+  </figure>
+
+  <div class="actions" id="actions" data-image={image} data-file={`hoshinokatachi-${c.slug}.png`} data-text={shareText(title)} data-url={resultUrl}>
+    <button class="button" id="share-file" type="button" hidden>画像をシェアする</button>
+    <a class="button secondary" href={image} download={`hoshinokatachi-${c.slug}.png`}>画像を保存する</a>
+    <button class="button secondary" id="share-x" type="button">Xでポストする</button>
+    <a href={`/result/${c.slug}/`}>結果ページにもどる</a>
+  </div>
+</Base>
+
+<script>
+  const actions = document.getElementById('actions') as HTMLElement;
+  const { image = '', file = 'hoshinokatachi.png', text = '', url = '' } = actions.dataset;
+  const shareFile = document.getElementById('share-file') as HTMLButtonElement;
+
+  // ファイルつきの共有ができる端末（主にスマホ）だけ、画像そのものを共有するボタンを出す
+  const probe = new File([new Uint8Array(1)], file, { type: 'image/png' });
+  if (navigator.canShare?.({ files: [probe] })) {
+    shareFile.hidden = false;
+    shareFile.addEventListener('click', async () => {
+      try {
+        const blob = await (await fetch(image)).blob();
+        await navigator.share({ files: [new File([blob], file, { type: 'image/png' })], text: `${text}\n${url}` });
+      } catch {
+        // キャンセル・失敗したときは何もしない（長押しで保存できる）
+      }
+    });
+  }
+
+  document.getElementById('share-x')!.addEventListener('click', () => {
+    const intent = new URL('https://x.com/intent/post');
+    intent.searchParams.set('text', text);
+    intent.searchParams.set('url', url);
+    window.open(intent, '_blank', 'noopener');
+  });
+</script>
+
+<style>
+  .title { font-size: 1.2rem; text-align: center; }
+  .lead { text-align: center; }
+  .story { margin: 16px auto; max-width: 420px; }
+  .story img { display: block; width: 100%; height: auto; border-radius: 16px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45); }
+  .actions { display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: 16px; }
+</style>

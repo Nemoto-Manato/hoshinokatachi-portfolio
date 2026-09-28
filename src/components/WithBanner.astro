@@ -1,0 +1,25 @@
+---
+// 相性診断に招かれて /shindan/?with=… や /select/?with=… に来たときの案内（D-019c）。
+// ?with= はブラウザで読むので、ここではキャラ名の表だけを埋め込み、中身は lib/with-client.ts が入れる。
+import { getCharacters } from '../lib/characters';
+import { jsonForScript } from '../lib/match';
+
+const names = Object.fromEntries(getCharacters().map((c) => [c.slug, c.name]));
+---
+
+<div class="with-banner card" id="with-banner" hidden>
+  <img id="with-banner-image" src="" alt="" width="64" height="64" />
+  <p>
+    <strong id="with-banner-title"></strong> さんとの相性診断です。<br />
+    <span class="muted">答え終わると、あなたの結果と2人の相性が見られます。</span>
+  </p>
+</div>
+<script type="application/json" id="with-names" set:html={jsonForScript(names)}></script>
+
+<style>
+  .with-banner { display: flex; align-items: center; gap: 12px; border-color: var(--gold); margin-bottom: 16px; }
+  .with-banner[hidden] { display: none; }
+  .with-banner img { flex-shrink: 0; width: 64px; height: 64px; }
+  .with-banner p { margin: 0; }
+  .with-banner strong { color: var(--gold); }
+</style>

@@ -1,0 +1,51 @@
+{
+  "_note": "公開用のダミーデータ。形式だけ本番と同じで、文章はすべて仮のもの。",
+  "polaris": {
+    "main": "#9fb4ff"
+  },
+  "nebula": {
+    "main": "#c3a6ff"
+  },
+  "sun": {
+    "main": "#ffc46b"
+  },
+  "uranus": {
+    "main": "#7fe3e0"
+  },
+  "neptune": {
+    "main": "#6fa8ff"
+  },
+  "milky-way": {
+    "main": "#e3b8ff"
+  },
+  "first-star": {
+    "main": "#ffe58f"
+  },
+  "comet": {
+    "main": "#ff9fc6"
+  },
+  "saturn": {
+    "main": "#e0bf94"
+  },
+  "moon": {
+    "main": "#dcd8ff"
+  },
+  "jupiter": {
+    "main": "#f2a97c"
+  },
+  "venus": {
+    "main": "#ffb3c7"
+  },
+  "mercury": {
+    "main": "#9fe0c8"
+  },
+  "aurora": {
+    "main": "#a8f0b0"
+  },
+  "mars": {
+    "main": "#ff8f80"
+  },
+  "meteor-shower": {
+    "main": "#c6f07a"
+  }
+}

@@ -1,0 +1,36 @@
+---
+// 運営者情報。未決定の項目は lib/legal.ts。
+import Legal from '../layouts/Legal.astro';
+import Undecided from '../components/Undecided.astro';
+import { LEGAL, REPRESENTATIVE } from '../lib/legal';
+import { CONTACT_EMAIL, SITE_NAME, SOCIAL_LINKS } from '../lib/site';
+---
+
+<Legal title="運営者情報" description={`${SITE_NAME}の運営者情報とお問い合わせ先です。`}>
+  <dl>
+    <dt>サービス名</dt>
+    <dd>{SITE_NAME}</dd>
+    <dt>URL</dt>
+    <dd><a href="/">{Astro.site?.href}</a></dd>
+    <dt>運営者</dt>
+    <dd><Undecided value={LEGAL.operatorName} label="運営者名" /></dd>
+    <dt>代表</dt>
+    <dd>{REPRESENTATIVE.name}</dd>
+    <dt>サービスの内容</dt>
+    <dd>16の性格タイプ診断と12星座を組み合わせた、エンターテインメント目的の無料の診断・占いサービス。本サービスは公式のMBTI®とは関係ありません。</dd>
+    <dt>お問い合わせ</dt>
+    <dd><a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a></dd>
+    <dt>公式SNS</dt>
+    <dd>
+      {SOCIAL_LINKS.map((s) => (
+        <div><a href={s.url} target="_blank" rel="noopener">{s.label} {s.handle}</a></div>
+      ))}
+    </dd>
+  </dl>
+
+  <h2>お問い合わせについて</h2>
+  <p>本サービスへのご意見・ご質問は、上記のメールアドレスまでお送りください。お問い合わせの内容とメールアドレスは、お問い合わせへの回答にだけ使います（<a href="/privacy/">プライバシーポリシー</a>）。</p>
+  <p>本サービスは、診断の回答や生年月日を運営者のサーバーに送信・保存していません。そのため、運営者から個々の診断結果を確認することはできません。</p>
+
+  <p><a href="/terms/">利用規約</a>／<a href="/privacy/">プライバシーポリシー</a></p>
+</Legal>

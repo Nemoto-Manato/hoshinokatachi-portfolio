@@ -1,0 +1,33 @@
+---
+// 利用規約・プライバシーポリシー・運営者情報の共通レイアウト。
+import Base from './Base.astro';
+
+interface Props {
+  title: string;
+  description: string;
+}
+const { title, description } = Astro.props;
+---
+
+<Base title={title} description={description}>
+  <article class="legal">
+    <h1>{title}</h1>
+    <slot />
+  </article>
+</Base>
+
+<style>
+  .legal :global(h2) { font-size: 1.05rem; margin-top: 2rem; }
+  .legal :global(ol), .legal :global(ul) { padding-left: 1.5em; }
+  .legal :global(table) { width: 100%; border-collapse: collapse; font-size: 0.9rem; display: block; overflow-x: auto; }
+  .legal :global(th), .legal :global(td) { border: 1px solid var(--border); padding: 8px; text-align: left; vertical-align: top; min-width: 8em; }
+  .legal :global(th) { background: var(--surface-strong); }
+  .legal :global(dl) { display: grid; grid-template-columns: max-content 1fr; gap: 8px 16px; }
+  .legal :global(dt) { color: var(--lavender); font-weight: 700; }
+  .legal :global(dd) { margin: 0; }
+  .legal :global(.enacted) { margin-top: 2rem; text-align: right; }
+  @media (max-width: 480px) {
+    .legal :global(dl) { grid-template-columns: 1fr; gap: 0; }
+    .legal :global(dd) { margin-bottom: 12px; }
+  }
+</style>

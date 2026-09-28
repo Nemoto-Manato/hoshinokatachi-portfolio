@@ -1,0 +1,329 @@
+{
+  "type": "moon",
+  "combinations": [
+    {
+      "sign": "aries",
+      "nickname": "サンプルの呼び名",
+      "hitokoto": "サンプルのひとことです。",
+      "basic": "サンプルの基本の性格の文章です。\n本番ではここに180字前後の文章が入ります。",
+      "love": "サンプルの恋愛の文章です。",
+      "work": "サンプルの仕事の文章です。",
+      "relationships": "サンプルの人間関係の文章です。",
+      "compatible": [
+        {
+          "type": "uranus",
+          "sign": "taurus",
+          "reason": "サンプルの相性の理由です。"
+        },
+        {
+          "type": "neptune",
+          "sign": "virgo",
+          "reason": "サンプルの相性の理由です。"
+        },
+        {
+          "type": "milky-way",
+          "sign": "capricorn",
+          "reason": "サンプルの相性の理由です。"
+        }
+      ],
+      "growth": "サンプルの伸ばし方の文章です。"
+    },
+    {
+      "sign": "taurus",
+      "nickname": "サンプルの呼び名",
+      "hitokoto": "サンプルのひとことです。",
+      "basic": "サンプルの基本の性格の文章です。\n本番ではここに180字前後の文章が入ります。",
+      "love": "サンプルの恋愛の文章です。",
+      "work": "サンプルの仕事の文章です。",
+      "relationships": "サンプルの人間関係の文章です。",
+      "compatible": [
+        {
+          "type": "neptune",
+          "sign": "gemini",
+          "reason": "サンプルの相性の理由です。"
+        },
+        {
+          "type": "milky-way",
+          "sign": "libra",
+          "reason": "サンプルの相性の理由です。"
+        },
+        {
+          "type": "first-star",
+          "sign": "aquarius",
+          "reason": "サンプルの相性の理由です。"
+        }
+      ],
+      "growth": "サンプルの伸ばし方の文章です。"
+    },
+    {
+      "sign": "gemini",
+      "nickname": "サンプルの呼び名",
+      "hitokoto": "サンプルのひとことです。",
+      "basic": "サンプルの基本の性格の文章です。\n本番ではここに180字前後の文章が入ります。",
+      "love": "サンプルの恋愛の文章です。",
+      "work": "サンプルの仕事の文章です。",
+      "relationships": "サンプルの人間関係の文章です。",
+      "compatible": [
+        {
+          "type": "milky-way",
+          "sign": "cancer",
+          "reason": "サンプルの相性の理由です。"
+        },
+        {
+          "type": "first-star",
+          "sign": "scorpio",
+          "reason": "サンプルの相性の理由です。"
+        },
+        {
+          "type": "comet",
+          "sign": "pisces",
+          "reason": "サンプルの相性の理由です。"
+        }
+      ],
+      "growth": "サンプルの伸ばし方の文章です。"
+    },
+    {
+      "sign": "cancer",
+      "nickname": "サンプルの呼び名",
+      "hitokoto": "サンプルのひとことです。",
+      "basic": "サンプルの基本の性格の文章です。\n本番ではここに180字前後の文章が入ります。",
+      "love": "サンプルの恋愛の文章です。",
+      "work": "サンプルの仕事の文章です。",
+      "relationships": "サンプルの人間関係の文章です。",
+      "compatible": [
+        {
+          "type": "first-star",
+          "sign": "leo",
+          "reason": "サンプルの相性の理由です。"
+        },
+        {
+          "type": "comet",
+          "sign": "sagittarius",
+          "reason": "サンプルの相性の理由です。"
+        },
+        {
+          "type": "saturn",
+          "sign": "aries",
+          "reason": "サンプルの相性の理由です。"
+        }
+      ],
+      "growth": "サンプルの伸ばし方の文章です。"
+    },
+    {
+      "sign": "leo",
+      "nickname": "サンプルの呼び名",
+      "hitokoto": "サンプルのひとことです。",
+      "basic": "サンプルの基本の性格の文章です。\n本番ではここに180字前後の文章が入ります。",
+      "love": "サンプルの恋愛の文章です。",
+      "work": "サンプルの仕事の文章です。",
+      "relationships": "サンプルの人間関係の文章です。",
+      "compatible": [
+        {
+          "type": "comet",
+          "sign": "virgo",
+          "reason": "サンプルの相性の理由です。"
+        },
+        {
+          "type": "saturn",
+          "sign": "capricorn",
+          "reason": "サンプルの相性の理由です。"
+        },
+        {
+          "type": "moon",
+          "sign": "taurus",
+          "reason": "サンプルの相性の理由です。"
+        }
+      ],
+      "growth": "サンプルの伸ばし方の文章です。"
+    },
+    {
+      "sign": "virgo",
+      "nickname": "サンプルの呼び名",
+      "hitokoto": "サンプルのひとことです。",
+      "basic": "サンプルの基本の性格の文章です。\n本番ではここに180字前後の文章が入ります。",
+      "love": "サンプルの恋愛の文章です。",
+      "work": "サンプルの仕事の文章です。",
+      "relationships": "サンプルの人間関係の文章です。",
+      "compatible": [
+        {
+          "type": "saturn",
+          "sign": "libra",
+          "reason": "サンプルの相性の理由です。"
+        },
+        {
+          "type": "moon",
+          "sign": "aquarius",
+          "reason": "サンプルの相性の理由です。"
+        },
+        {
+          "type": "jupiter",
+          "sign": "gemini",
+          "reason": "サンプルの相性の理由です。"
+        }
+      ],
+      "growth": "サンプルの伸ばし方の文章です。"
+    },
+    {
+      "sign": "libra",
+      "nickname": "サンプルの呼び名",
+      "hitokoto": "サンプルのひとことです。",
+      "basic": "サンプルの基本の性格の文章です。\n本番ではここに180字前後の文章が入ります。",
+      "love": "サンプルの恋愛の文章です。",
+      "work": "サンプルの仕事の文章です。",
+      "relationships": "サンプルの人間関係の文章です。",
+      "compatible": [
+        {
+          "type": "moon",
+          "sign": "scorpio",
+          "reason": "サンプルの相性の理由です。"
+        },
+        {
+          "type": "jupiter",
+          "sign": "pisces",
+          "reason": "サンプルの相性の理由です。"
+        },
+        {
+          "type": "venus",
+          "sign": "cancer",
+          "reason": "サンプルの相性の理由です。"
+        }
+      ],
+      "growth": "サンプルの伸ばし方の文章です。"
+    },
+    {
+      "sign": "scorpio",
+      "nickname": "サンプルの呼び名",
+      "hitokoto": "サンプルのひとことです。",
+      "basic": "サンプルの基本の性格の文章です。\n本番ではここに180字前後の文章が入ります。",
+      "love": "サンプルの恋愛の文章です。",
+      "work": "サンプルの仕事の文章です。",
+      "relationships": "サンプルの人間関係の文章です。",
+      "compatible": [
+        {
+          "type": "jupiter",
+          "sign": "sagittarius",
+          "reason": "サンプルの相性の理由です。"
+        },
+        {
+          "type": "venus",
+          "sign": "aries",
+          "reason": "サンプルの相性の理由です。"
+        },
+        {
+          "type": "mercury",
+          "sign": "leo",
+          "reason": "サンプルの相性の理由です。"
+        }
+      ],
+      "growth": "サンプルの伸ばし方の文章です。"
+    },
+    {
+      "sign": "sagittarius",
+      "nickname": "サンプルの呼び名",
+      "hitokoto": "サンプルのひとことです。",
+      "basic": "サンプルの基本の性格の文章です。\n本番ではここに180字前後の文章が入ります。",
+      "love": "サンプルの恋愛の文章です。",
+      "work": "サンプルの仕事の文章です。",
+      "relationships": "サンプルの人間関係の文章です。",
+      "compatible": [
+        {
+          "type": "venus",
+          "sign": "capricorn",
+          "reason": "サンプルの相性の理由です。"
+        },
+        {
+          "type": "mercury",
+          "sign": "taurus",
+          "reason": "サンプルの相性の理由です。"
+        },
+        {
+          "type": "aurora",
+          "sign": "virgo",
+          "reason": "サンプルの相性の理由です。"
+        }
+      ],
+      "growth": "サンプルの伸ばし方の文章です。"
+    },
+    {
+      "sign": "capricorn",
+      "nickname": "サンプルの呼び名",
+      "hitokoto": "サンプルのひとことです。",
+      "basic": "サンプルの基本の性格の文章です。\n本番ではここに180字前後の文章が入ります。",
+      "love": "サンプルの恋愛の文章です。",
+      "work": "サンプルの仕事の文章です。",
+      "relationships": "サンプルの人間関係の文章です。",
+      "compatible": [
+        {
+          "type": "mercury",
+          "sign": "aquarius",
+          "reason": "サンプルの相性の理由です。"
+        },
+        {
+          "type": "aurora",
+          "sign": "gemini",
+          "reason": "サンプルの相性の理由です。"
+        },
+        {
+          "type": "mars",
+          "sign": "libra",
+          "reason": "サンプルの相性の理由です。"
+        }
+      ],
+      "growth": "サンプルの伸ばし方の文章です。"
+    },
+    {
+      "sign": "aquarius",
+      "nickname": "サンプルの呼び名",
+      "hitokoto": "サンプルのひとことです。",
+      "basic": "サンプルの基本の性格の文章です。\n本番ではここに180字前後の文章が入ります。",
+      "love": "サンプルの恋愛の文章です。",
+      "work": "サンプルの仕事の文章です。",
+      "relationships": "サンプルの人間関係の文章です。",
+      "compatible": [
+        {
+          "type": "aurora",
+          "sign": "pisces",
+          "reason": "サンプルの相性の理由です。"
+        },
+        {
+          "type": "mars",
+          "sign": "cancer",
+          "reason": "サンプルの相性の理由です。"
+        },
+        {
+          "type": "meteor-shower",
+          "sign": "scorpio",
+          "reason": "サンプルの相性の理由です。"
+        }
+      ],
+      "growth": "サンプルの伸ばし方の文章です。"
+    },
+    {
+      "sign": "pisces",
+      "nickname": "サンプルの呼び名",
+      "hitokoto": "サンプルのひとことです。",
+      "basic": "サンプルの基本の性格の文章です。\n本番ではここに180字前後の文章が入ります。",
+      "love": "サンプルの恋愛の文章です。",
+      "work": "サンプルの仕事の文章です。",
+      "relationships": "サンプルの人間関係の文章です。",
+      "compatible": [
+        {
+          "type": "mars",
+          "sign": "aries",
+          "reason": "サンプルの相性の理由です。"
+        },
+        {
+          "type": "meteor-shower",
+          "sign": "leo",
+          "reason": "サンプルの相性の理由です。"
+        },
+        {
+          "type": "polaris",
+          "sign": "sagittarius",
+          "reason": "サンプルの相性の理由です。"
+        }
+      ],
+      "growth": "サンプルの伸ばし方の文章です。"
+    }
+  ]
+}

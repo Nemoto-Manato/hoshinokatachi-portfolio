@@ -1,0 +1,96 @@
+---
+import Base from '../layouts/Base.astro';
+import Character from '../components/Character.astro';
+import { getCharacters } from '../lib/characters';
+import { SIGNS } from '../lib/signs';
+import { getColumns } from '../lib/articles';
+
+const characters = getCharacters();
+const allColumns = getColumns();
+// トップには最初の6本だけ（全部は /column）
+const columns = allColumns.slice(0, 6);
+const guides = [
+  { href: '/zukan/', title: 'いきもの図鑑', text: '16の星のいきものの、すみか・好きなもの・口ぐせ・相棒' },
+  { href: '/aisho/', title: '16いきもの相性早見表', text: 'いきもの同士の関係を16×16の表でひと目で' },
+  { href: '/column/', title: '読みもの', text: '星座の決まり方、エレメント、4つの軸などのお話' },
+  { href: '/glossary/', title: '用語集', text: '守護星・支配星・重なり星など、占いに出てくる言葉' },
+];
+---
+
+<Base>
+  <section class="hero">
+    <h1>あなたはどの「星のいきもの」？<br />16タイプ×12星座の取扱説明書</h1>
+    <p class="muted">20問の性格診断と生年月日から、16の星のいきものと12星座、192通りの組み合わせであなたを占います。</p>
+    <div class="entries">
+      <a class="button" href="/shindan/">診断をはじめる（約3分）</a>
+      <a class="button secondary" href="/select/">自分のタイプを知っている</a>
+    </div>
+  </section>
+
+  <h2>16の星のいきもの</h2>
+  <ul class="grid">
+    {characters.map((t) => (
+      <li>
+        <a class="card tile type-tile" href={`/type/${t.slug}/`} style={`--theme: ${t.theme.main}`}>
+          <Character type={t} size={96} class="tile-character" decorative />
+          <strong>{t.name}</strong>
+          <span class="guardian">守護星：{t.guardian}</span>
+          <span class="muted">{t.concept}</span>
+        </a>
+      </li>
+    ))}
+  </ul>
+
+  <h2>もっと知る</h2>
+  <ul class="grid guides">
+    {guides.map((g) => (
+      <li>
+        <a class="card tile" href={g.href}>
+          <strong>{g.title}</strong>
+          <span class="muted">{g.text}</span>
+        </a>
+      </li>
+    ))}
+  </ul>
+
+  <h2>12星座</h2>
+  <ul class="grid">
+    {SIGNS.map((s) => (
+      <li>
+        <a class="card tile" href={`/sign/${s.id}/`}>
+          <strong>{s.name}</strong>
+          <span class="muted">{s.period}</span>
+        </a>
+      </li>
+    ))}
+  </ul>
+
+  {columns.length > 0 && (
+    <>
+      <h2>読みもの</h2>
+      <ul class="column-list">
+        {columns.map((c) => (
+          <li>
+            <a class="card tile" href={`/column/${c.slug}/`}>
+              <strong>{c.title}</strong>
+              <span class="muted">{c.description}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+      <p><a href="/column/">読みもの一覧へ{allColumns.length > columns.length && `（全${allColumns.length}本）`}</a></p>
+    </>
+  )}
+</Base>
+
+<style>
+  .hero { text-align: center; padding: 32px 0; }
+  .entries { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  .grid { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+  .tile { display: flex; flex-direction: column; gap: 4px; text-decoration: none; color: var(--text); height: 100%; }
+  .type-tile { align-items: center; text-align: center; border-top: 3px solid var(--theme, var(--border)); }
+  .guardian { font-size: 0.8rem; color: var(--theme, var(--gold)); }
+  .guides { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+  .column-list { list-style: none; padding: 0; display: grid; gap: 12px; }
+  .type-tile :global(.tile-character) { width: 96px; margin-bottom: 4px; }
+</style>

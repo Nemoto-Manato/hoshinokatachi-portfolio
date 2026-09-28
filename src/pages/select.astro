@@ -1,0 +1,88 @@
+---
+// 自分のタイプを知っている人向けの入口（D-002）。
+// 4文字コードを表示するのはこのページだけ。公開前に専門家の確認を受ける（法務判断書 #1）。
+import Base from '../layouts/Base.astro';
+import BirthdayField from '../components/BirthdayField.astro';
+import Character from '../components/Character.astro';
+import WithBanner from '../components/WithBanner.astro';
+import { getCharacters } from '../lib/characters';
+
+// 4文字コードで探しやすいように、コード順に並べる。
+const types = getCharacters().sort((a, b) => a.code.localeCompare(b.code));
+---
+
+<Base title="タイプを選ぶ">
+  <h1>自分のタイプを選ぶ</h1>
+  <WithBanner />
+  <p class="muted">16タイプ診断の結果を知っている人は、選ぶだけでOK。分からない人は<a href="/shindan/" data-keep-with="shindan">診断する</a>（約3分）。</p>
+
+  <form id="select" novalidate>
+    <fieldset class="types">
+      <legend class="visually-hidden">性格タイプ</legend>
+      {types.map((t) => (
+        <label class="card type" style={`--theme: ${t.theme.main}`}>
+          <input type="radio" name="type" value={t.code} />
+          <Character type={t} size={72} class="type-character" decorative />
+          <span class="code">{t.code}</span>
+          <strong>{t.name}</strong>
+          <span class="muted">守護星：{t.guardian}</span>
+        </label>
+      ))}
+    </fieldset>
+
+    <BirthdayField />
+
+    <p id="error" class="error" role="alert"></p>
+    <div class="submit"><button class="button" type="submit" data-with-label="相性を見る">結果を見る</button></div>
+  </form>
+</Base>
+
+<script>
+  import { getTypeByCode } from '../lib/types';
+  import { combinationSlug } from '../lib/combination';
+  import { resolveSign, watchBirthday } from '../lib/birthday-form';
+  import { destinationAfterDiagnosis } from '../lib/match';
+  import { setupWith } from '../lib/with-client';
+
+  const form = document.getElementById('select') as HTMLFormElement;
+  const errorEl = document.getElementById('error')!;
+  watchBirthday(form);
+  const withRef = setupWith();
+
+  // タイプを選んだら、次に入力する生年月日までスクロールする。
+  const birthday = form.querySelector<HTMLElement>('.birthday-field')!;
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  form.addEventListener('change', (e) => {
+    if ((e.target as HTMLInputElement).name !== 'type') return;
+    birthday.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+  });
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    errorEl.textContent = '';
+
+    const type = getTypeByCode(String(new FormData(form).get('type')));
+    if (!type) {
+      errorEl.textContent = 'タイプを選んでください。';
+      form.querySelector('.types')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return;
+    }
+
+    const sign = resolveSign(form);
+    if (sign.status === 'error') errorEl.textContent = sign.message;
+    if (sign.status !== 'ok') return;
+
+    location.href = destinationAfterDiagnosis(combinationSlug(type.slug, sign.signId), withRef);
+  });
+</script>
+
+<style>
+  .types { border: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+  .type { border-top: 3px solid var(--theme, var(--border)); display: flex; flex-direction: column; align-items: center; text-align: center; gap: 2px; cursor: pointer; position: relative; }
+  .type :global(.type-character) { width: 72px; margin-bottom: 4px; }
+  .type input { position: absolute; opacity: 0; }
+  .type:has(input:checked) { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
+  .type:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .code { font-family: ui-monospace, monospace; font-size: 0.8rem; color: var(--accent); letter-spacing: 0.1em; }
+  .submit { text-align: center; margin-top: 16px; }
+</style>

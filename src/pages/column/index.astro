@@ -1,0 +1,53 @@
+---
+// 読みもの一覧。本文の原本は 02_content/09_読みもの*.json（lib/articles.ts）。カテゴリは slug から決める（lib/column-categories.ts）。
+import Base from '../../layouts/Base.astro';
+import { getColumns } from '../../lib/articles';
+import { groupColumns } from '../../lib/column-categories';
+
+const columns = getColumns();
+const groups = groupColumns(columns);
+---
+
+<Base title="読みもの" description="16の星のいきもの・12星座・重なり星など、ほしのかたちの占いをもっと楽しむための読みもの。">
+  <h1>読みもの</h1>
+  <p class="muted">診断のしくみや星座の決まり方など、結果をもっと楽しむためのお話をまとめています。言葉の意味は<a href="/glossary/">用語集</a>でも調べられます。</p>
+  {columns.length === 0 ? (
+    <p>ただいま準備中です。</p>
+  ) : (
+    <>
+      {groups.length > 1 && (
+        <nav class="category-nav" aria-label="カテゴリ">
+          {groups.map((g) => <a href={`#${g.category.id}`}>{g.category.name}（{g.columns.length}）</a>)}
+        </nav>
+      )}
+      {groups.map((g) => (
+        <section id={g.category.id}>
+          <h2>{g.category.name}</h2>
+          <p class="muted">{g.category.description}</p>
+          <ul class="column-list">
+            {g.columns.map((c) => (
+              <li>
+                <a class="card column-item" href={`/column/${c.slug}/`}>
+                  <strong>{c.title}</strong>
+                  <span class="muted">{c.description}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
+    </>
+  )}
+  <p><a class="button" href="/shindan/">自分の星のいきものを診断する</a></p>
+</Base>
+
+<style>
+  .category-nav { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0; }
+  .category-nav a {
+    padding: 4px 12px; border-radius: 999px; border: 1px solid var(--border);
+    background: var(--surface); color: var(--text); text-decoration: none; font-size: 0.85rem;
+  }
+  section h2 + .muted { margin-top: -0.5rem; }
+  .column-list { list-style: none; padding: 0; display: grid; gap: 12px; }
+  .column-item { display: flex; flex-direction: column; gap: 4px; text-decoration: none; color: var(--text); }
+</style>

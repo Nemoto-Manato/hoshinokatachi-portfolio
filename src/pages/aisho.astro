@@ -1,0 +1,173 @@
+---
+// 16いきもの相性早見表。原本は 02_content/11_相性早見表.json（lib/aisho.ts）。
+// 16×16 の表（横スクロール）と、いきもの別の一覧（各ペアの text の全文。表のセル・上のいきもの選びからページ内リンクで飛ぶ）。
+// ペアごとの個別ページは作らない。原本が無いあいだは「準備中」と表示し、検索に出さない（noindex）。
+import Base from '../layouts/Base.astro';
+import Character from '../components/Character.astro';
+import { getAisho, pairAnchor, typeAnchor } from '../lib/aisho';
+import { getCharacters } from '../lib/characters';
+
+const table = getAisho();
+const chars = getCharacters();
+const counts = new Map(table.labels.map((l) => [l.key, table.pairs.filter((p) => p.label === l.key).length]));
+---
+
+<Base
+  title="16いきもの相性早見表"
+  description="16の星のいきもの同士の相性を、16×16の早見表でひと目で。いきものを選ぶと、ほかの15体との関係と付き合い方のヒントが読めます。"
+  noindex={table.isEmpty}
+>
+  <h1>16いきもの相性早見表</h1>
+  <p class="muted">
+    16の星のいきもの同士が、どんな関係になりやすいかをまとめました。相性に良い・悪いはなく、ちがいを知ると付き合い方のヒントになります。
+    星座もふくめた相性は、診断の結果ページで見られます。
+  </p>
+
+  {table.isEmpty ? (
+    <p>ただいま準備中です。</p>
+  ) : (
+    <>
+      <h2 id="legend">関係の種類</h2>
+      <ul class="legend">
+        {table.labels.map((l) => (
+          <li>
+            <span class="swatch" style={`--c: ${l.color}`} aria-hidden="true">{l.icon}</span>
+            <span>
+              <strong>{l.name}</strong>
+              <span class="muted">（{counts.get(l.key)}組）</span>
+              {l.description && <span class="legend-desc">{l.description}</span>}
+            </span>
+          </li>
+        ))}
+      </ul>
+
+      <h2 id="pick">いきものを選ぶ</h2>
+      <p class="muted">選ぶと、そのいきものとほかの15体との関係が並びます。</p>
+      <ul class="pick">
+        {chars.map((t) => (
+          <li>
+            <a href={`#${typeAnchor(t.slug)}`} style={`--theme: ${t.theme.main}`}>
+              <Character type={t} size={48} class="pick-character" decorative />
+              <span>{t.name}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+
+      <h2 id="table">早見表</h2>
+      <p class="muted">行のいきものから見た、列のいきものとの関係です。マスを押すと説明に飛びます。<span class="scroll-hint">表は横にスクロールできます。</span></p>
+      <div class="table-wrap" tabindex="0" role="region" aria-label="16いきもの相性早見表（横にスクロールできます）">
+        <table class="aisho-table">
+          <thead>
+            <tr>
+              <th scope="col" class="corner"><span class="visually-hidden">いきもの</span></th>
+              {chars.map((t) => (
+                <th scope="col" title={t.name}>
+                  <Character type={t} size={32} class="head-character" />
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {chars.map((row) => (
+              <tr>
+                <th scope="row">
+                  <a href={`#${typeAnchor(row.slug)}`}>
+                    <Character type={row} size={28} class="row-character" decorative />
+                    <span>{row.name}</span>
+                  </a>
+                </th>
+                {chars.map((col) => {
+                  const r = table.get(row.slug, col.slug);
+                  return r ? (
+                    <td style={`--c: ${r.label.color}`} class:list={[{ self: row.slug === col.slug }]}>
+                      <a href={`#${pairAnchor(row.slug, col.slug)}`} title={`${row.name}×${col.name}：${r.label.name}`} aria-label={`${row.name}と${col.name}：${r.label.name}`}>{r.label.icon}</a>
+                    </td>
+                  ) : (
+                    <td class="none"><span aria-hidden="true">－</span><span class="visually-hidden">準備中</span></td>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <h2 id="list">いきもの別の相性</h2>
+      {chars.map((row) => (
+        <section class="per-type" id={typeAnchor(row.slug)} style={`--theme: ${row.theme.main}`}>
+          <h3>
+            <Character type={row} size={56} class="section-character" decorative />
+            <span>{row.name}の相性</span>
+          </h3>
+          <ul class="relations">
+            {chars.map((col) => {
+              const r = table.get(row.slug, col.slug);
+              return r && (
+                <li id={pairAnchor(row.slug, col.slug)}>
+                  <div class="relation-head">
+                    <Character type={col} size={40} class="relation-character" decorative />
+                    <a href={`/type/${col.slug}/`}>{row.slug === col.slug ? `${col.name}どうし` : col.name}</a>
+                    <span class="badge" style={`--c: ${r.label.color}`}>{r.label.icon} {r.label.name}</span>
+                  </div>
+                  <p>{r.pair.text}</p>
+                </li>
+              );
+            })}
+          </ul>
+          <p class="muted"><a href={`/type/${row.slug}/`}>{row.name}のくわしい解説</a> ・ <a href="#pick">ほかのいきものを選ぶ</a> ・ <a href="#table">表にもどる</a></p>
+        </section>
+      ))}
+    </>
+  )}
+  <p><a class="button" href="/shindan/">自分の星のいきものを診断する</a></p>
+</Base>
+
+<style>
+  .legend { list-style: none; padding: 0; display: grid; gap: 10px; }
+  .legend li { display: flex; gap: 10px; align-items: flex-start; }
+  .legend-desc { display: block; font-size: 0.9rem; }
+  .swatch {
+    flex-shrink: 0; width: 2em; height: 2em; border-radius: 8px; display: grid; place-items: center;
+    background: color-mix(in srgb, var(--c) 35%, transparent); border: 1px solid var(--c);
+  }
+  .pick { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 8px; }
+  .pick a {
+    display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px; height: 100%;
+    border-radius: 12px; border: 1px solid var(--border); border-bottom: 3px solid var(--theme);
+    color: var(--text); text-decoration: none; font-size: 0.7rem; line-height: 1.3; text-align: center;
+  }
+  .pick a :global(.pick-character) { width: 48px; }
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; border: 1px solid var(--border); border-radius: 12px; }
+  .aisho-table { border-collapse: collapse; font-size: 0.9rem; }
+  .aisho-table th, .aisho-table td { padding: 0; text-align: center; border: 1px solid rgba(201, 184, 255, 0.12); }
+  .aisho-table thead th { padding: 4px; background: var(--night); }
+  .aisho-table thead :global(.head-character) { width: 32px; margin: 0 auto; }
+  .aisho-table tbody th { position: sticky; left: 0; z-index: 1; background: var(--night); text-align: left; }
+  .aisho-table .corner { position: sticky; left: 0; z-index: 2; }
+  .aisho-table tbody th a {
+    display: flex; align-items: center; gap: 4px; padding: 2px 6px; color: var(--text); text-decoration: none;
+    font-size: 0.7rem; line-height: 1.2; width: 9em;
+  }
+  .aisho-table tbody th :global(.row-character) { width: 28px; flex-shrink: 0; }
+  .aisho-table td { background: color-mix(in srgb, var(--c) 30%, transparent); }
+  .aisho-table td a { display: block; min-width: 36px; height: 36px; line-height: 36px; text-decoration: none; color: var(--text); }
+  .aisho-table td a:hover { outline: 2px solid var(--c); outline-offset: -2px; }
+  .aisho-table td.self { box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.35); }
+  .aisho-table td.none { color: var(--muted); background: transparent; min-width: 36px; }
+  .per-type { margin-top: 24px; padding-top: 8px; border-top: 3px solid var(--theme); scroll-margin-top: 8px; }
+  .per-type h3 { display: flex; align-items: center; gap: 8px; color: var(--theme); margin: 8px 0; }
+  .per-type h3 :global(.section-character) { width: 56px; }
+  .relations { list-style: none; padding: 0; margin: 0; }
+  .relations li { padding: 10px 0; border-bottom: 1px dashed var(--border); scroll-margin-top: 8px; }
+  .relations li:target { background: var(--accent-soft); border-radius: 8px; padding-left: 8px; padding-right: 8px; }
+  .relation-head { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 10px; }
+  .relation-head :global(.relation-character) { width: 40px; }
+  .relation-head a { font-weight: 700; }
+  .relations p { margin: 6px 0 0; }
+  .badge {
+    display: inline-block; padding: 0 10px; border-radius: 999px; font-size: 0.8rem;
+    background: color-mix(in srgb, var(--c) 30%, transparent); border: 1px solid var(--c);
+  }
+  @media (min-width: 760px) { .scroll-hint { display: none; } }
+</style>

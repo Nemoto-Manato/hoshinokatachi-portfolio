@@ -1,0 +1,19 @@
+// Cloudflare Workers の静的アセット配信の設定（D-010）。
+// サーバー側のコードは持たず、`npm run build` で作った dist/ をそのまま配るだけ。
+// 自動設定（wrangler の autoconfig）は SSR 用のアダプターを追加してしまうので使わない。
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "hoshinokatachi",
+  "compatibility_date": "2026-09-25",
+  "assets": {
+    "directory": "./dist"
+  },
+  // 正式公開（D-015）：16type-seiza.com で配信する。Cloudflare が用意するテスト用のURLは、同じ内容が2つのURLで見えないよう無効にする。
+  // www 付きでも開けるようにする。検索エンジン向けの正式なURLは、各ページの canonical で www なしを指定している。
+  "routes": [
+    { "pattern": "16type-seiza.com", "custom_domain": true },
+    { "pattern": "www.16type-seiza.com", "custom_domain": true }
+  ],
+  "workers_dev": false,
+  "preview_urls": false
+}

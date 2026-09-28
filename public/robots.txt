@@ -1,0 +1,6 @@
+# 16タイプ星座診断〜ほしのかたち〜
+User-agent: *
+Allow: /
+Disallow: /share/
+
+Sitemap: https://16type-seiza.com/sitemap-index.xml

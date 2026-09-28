@@ -1,0 +1,67 @@
+---
+// いきもの図鑑のブロック（/type/{slug}）。原本は 02_content/10_図鑑.json（lib/zukan.ts）。
+// 項目が無いものは出さない。表情違いの画像（public/characters/alt/{slug}.svg）はあるときだけ出す。
+import Character from './Character.astro';
+import { getCharacter } from '../lib/characters';
+import type { TypeCharacter } from '../lib/types';
+import { altCharacterSrc, type ZukanEntry } from '../lib/zukan';
+
+interface Props {
+  type: TypeCharacter;
+  zukan: ZukanEntry;
+}
+
+const { type: t, zukan: z } = Astro.props;
+const buddy = z.buddy ? getCharacter(z.buddy.slug) : undefined;
+const alt = altCharacterSrc(t.slug);
+---
+
+<section class="card zukan" id="zukan" style={`--theme: ${t.theme.main}`}>
+  <h2>いきもの図鑑：{t.name}</h2>
+  {alt && (
+    <img class="zukan-alt" src={alt} alt={`${t.name}（ちがう表情）`} width="160" height="160" loading="lazy" decoding="async" />
+  )}
+  <dl class="zukan-list">
+    {z.habitat && (<div><dt>すみか</dt><dd>{z.habitat}</dd></div>)}
+    {z.likes.length > 0 && (
+      <div><dt>好きなもの</dt><dd><ul>{z.likes.map((l) => <li>{l}</li>)}</ul></dd></div>
+    )}
+    {z.dislikes.length > 0 && (
+      <div><dt>苦手なもの</dt><dd><ul>{z.dislikes.map((l) => <li>{l}</li>)}</ul></dd></div>
+    )}
+    {z.kuchiguse && (<div><dt>口ぐせ</dt><dd class="kuchiguse">「{z.kuchiguse.replace(/^「|」$/g, '')}」</dd></div>)}
+    {z.recovery && (<div><dt>落ち込んだときの回復法</dt><dd>{z.recovery}</dd></div>)}
+    {buddy && (
+      <div>
+        <dt>相棒のいきもの</dt>
+        <dd>
+          <a class="buddy" href={`/type/${buddy.slug}/`} style={`--buddy: ${buddy.theme.main}`}>
+            <Character type={buddy} size={64} class="buddy-character" decorative />
+            <span><strong>{buddy.name}</strong>{z.buddy?.reason && <span class="muted buddy-reason">{z.buddy.reason}</span>}</span>
+          </a>
+        </dd>
+      </div>
+    )}
+    {z.trivia && (<div><dt>豆知識</dt><dd>{z.trivia}</dd></div>)}
+  </dl>
+  <p class="muted"><a href="/zukan/">いきもの図鑑の一覧へ</a></p>
+</section>
+
+<style>
+  .zukan { margin-top: 24px; border-top: 3px solid var(--theme); }
+  .zukan h2 { margin-top: 0; }
+  .zukan-alt { display: block; width: 160px; height: auto; margin: 0 auto 8px; }
+  .zukan-list { margin: 0; }
+  .zukan-list > div { padding: 8px 0; border-bottom: 1px dashed var(--border); }
+  .zukan-list > div:last-child { border-bottom: none; }
+  dt { font-size: 0.85rem; color: var(--theme); font-weight: 700; }
+  dd { margin: 2px 0 0; }
+  dd ul { margin: 0; padding-left: 1.2em; }
+  .kuchiguse { font-size: 1.1rem; font-weight: 700; }
+  .buddy {
+    display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--text);
+    padding: 8px; border-radius: 12px; border: 1px solid var(--border); border-left: 3px solid var(--buddy);
+  }
+  .buddy :global(.buddy-character) { width: 64px; flex-shrink: 0; }
+  .buddy-reason { display: block; }
+</style>

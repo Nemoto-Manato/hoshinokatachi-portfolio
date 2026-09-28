@@ -1,0 +1,100 @@
+{
+  "_note": "公開用のダミーデータ。形式だけ本番と同じで、文章はすべて仮のもの。",
+  "signPairs": [
+    {
+      "a": "aries",
+      "b": "aries",
+      "relation": "same",
+      "title": "サンプルの題",
+      "text": "サンプルの星座の相性の文章です。"
+    },
+    {
+      "a": "aries",
+      "b": "leo",
+      "relation": "same-element",
+      "title": "サンプルの題",
+      "text": "サンプルの星座の相性の文章です。"
+    },
+    {
+      "a": "aries",
+      "b": "gemini",
+      "relation": "harmony",
+      "title": "サンプルの題",
+      "text": "サンプルの星座の相性の文章です。"
+    },
+    {
+      "a": "aries",
+      "b": "libra",
+      "relation": "opposite",
+      "title": "サンプルの題",
+      "text": "サンプルの星座の相性の文章です。"
+    },
+    {
+      "a": "leo",
+      "b": "cancer",
+      "relation": "different",
+      "title": "サンプルの題",
+      "text": "サンプルの星座の相性の文章です。"
+    },
+    {
+      "a": "leo",
+      "b": "leo",
+      "relation": "same",
+      "title": "サンプルの題",
+      "text": "サンプルの星座の相性の文章です。"
+    }
+  ],
+  "relations": {
+    "same": {
+      "name": "関係A",
+      "description": "サンプルの関係の説明です（関係A）。"
+    },
+    "same-element": {
+      "name": "関係B",
+      "description": "サンプルの関係の説明です（関係B）。"
+    },
+    "harmony": {
+      "name": "関係C",
+      "description": "サンプルの関係の説明です（関係C）。"
+    },
+    "opposite": {
+      "name": "関係D",
+      "description": "サンプルの関係の説明です（関係D）。"
+    },
+    "different": {
+      "name": "関係E",
+      "description": "サンプルの関係の説明です（関係E）。"
+    }
+  },
+  "advice": {
+    "pittari": {
+      "friend": "サンプルの友だち向けアドバイスです。",
+      "love": "サンプルの恋愛向けアドバイスです。",
+      "work": "サンプルの仕事向けアドバイスです。"
+    },
+    "oginau": {
+      "friend": "サンプルの友だち向けアドバイスです。",
+      "love": "サンプルの恋愛向けアドバイスです。",
+      "work": "サンプルの仕事向けアドバイスです。"
+    },
+    "shigeki": {
+      "friend": "サンプルの友だち向けアドバイスです。",
+      "love": "サンプルの恋愛向けアドバイスです。",
+      "work": "サンプルの仕事向けアドバイスです。"
+    },
+    "sodatsu": {
+      "friend": "サンプルの友だち向けアドバイスです。",
+      "love": "サンプルの恋愛向けアドバイスです。",
+      "work": "サンプルの仕事向けアドバイスです。"
+    },
+    "nitamono": {
+      "friend": "サンプルの友だち向けアドバイスです。",
+      "love": "サンプルの恋愛向けアドバイスです。",
+      "work": "サンプルの仕事向けアドバイスです。"
+    }
+  },
+  "intro": {
+    "invite": "サンプルの招待の説明文です。",
+    "waiting": "サンプルの待機中の説明文です。"
+  }
+}

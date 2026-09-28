@@ -1,0 +1,83 @@
+---
+import Base from '../../layouts/Base.astro';
+import Character from '../../components/Character.astro';
+import ArticleSections from '../../components/ArticleSections.astro';
+import ZukanBlock from '../../components/ZukanBlock.astro';
+import { getAisho, typeAnchor } from '../../lib/aisho';
+import { getColumns, getTypeArticle } from '../../lib/articles';
+import { COMBINATIONS } from '../../lib/combination';
+import { getCharacter, resultTitle } from '../../lib/characters';
+import { TYPES } from '../../lib/types';
+import { getZukan } from '../../lib/zukan';
+
+export function getStaticPaths() {
+  return TYPES.map((t) => ({ params: { slug: t.slug } }));
+}
+
+const t = getCharacter(Astro.params.slug);
+const combos = COMBINATIONS.filter((c) => c.type.slug === t.slug);
+const article = getTypeArticle(t.slug);
+const related = getColumns().filter((c) => ['about-16types', 'guardian-and-ruler'].includes(c.slug));
+const zukan = getZukan(t.slug);
+const hasAisho = !getAisho().isEmpty;
+---
+
+<Base title={t.name} description={`${t.name}（守護星：${t.guardian}）の性格。${t.concept}。`}>
+  <div class="type-hero" style={`--theme: ${t.theme.main}`}>
+    <Character type={t} size={200} loading="eager" class="hero-character" />
+    <h1>{t.name}</h1>
+    <p class="guardian">守護星：{t.guardian}</p>
+    <p class="muted">{t.concept}</p>
+  </div>
+
+  <section class="card aruaru-card">
+    <h2>{t.name}のあるある</h2>
+    <ul class="aruaru">
+      {t.aruaru.map((a) => <li>{a}</li>)}
+    </ul>
+  </section>
+
+  <p>{t.summary}</p>
+
+  {zukan && <ZukanBlock type={t} zukan={zukan} />}
+
+  <ArticleSections sections={article} />
+
+  {hasAisho && (
+    <p class="aisho-link card">
+      <a href={`/aisho/#${typeAnchor(t.slug)}`}>このいきものの相性を見る</a>
+      <span class="muted">（16いきもの相性早見表で、{t.name}とほかの15体との関係）</span>
+    </p>
+  )}
+
+  <h2>{t.name} × 12星座</h2>
+  <ul>
+    {combos.map((c) => (
+      <li><a href={`/result/${c.slug}/`}>{resultTitle(t, c.sign.name)}</a>{c.overlap && ' ★重なり星'}</li>
+    ))}
+  </ul>
+  <p><a class="button" href="/shindan/">自分の星のいきものを診断する</a></p>
+  {related.length > 0 && (
+    <>
+      <h2>あわせて読みたい</h2>
+      <ul>
+        {related.map((c) => <li><a href={`/column/${c.slug}/`}>{c.title}</a></li>)}
+      </ul>
+    </>
+  )}
+</Base>
+
+<style>
+  .type-hero { text-align: center; }
+  .type-hero :global(.hero-character) { width: 200px; margin: 16px auto 0; }
+  .type-hero h1 { margin-bottom: 0; }
+  .guardian { color: var(--theme); font-weight: 700; margin: 4px 0 0; }
+  .aruaru-card { margin-top: 16px; }
+  .aisho-link { margin-top: 24px; }
+  .aisho-link a { font-weight: 700; }
+  .aruaru-card h2 { margin-top: 0; }
+  .aruaru { list-style: none; padding: 0; margin: 0; }
+  .aruaru li { position: relative; padding-left: 1.8em; }
+  .aruaru li + li { margin-top: 6px; }
+  .aruaru li::before { content: '✓'; position: absolute; left: 0; color: var(--mint); font-weight: 700; }
+</style>

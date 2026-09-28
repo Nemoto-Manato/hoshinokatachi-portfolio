@@ -1,0 +1,78 @@
+---
+// 相性診断の招待ページ（D-019c）：/aisho/invite/?from=sun-leo
+// 結果ページの「友達との相性を見る」でシェアされるリンク。送り主のキャラを出し、友達にも診断を受けてもらう（D-012「答える過程を大事にする」）。
+// 静的な1ページで、?from= はブラウザで読む（不正な値なら、送り主なしのふつうの案内にする）。
+// クエリで中身が変わるので検索には出さない（noindex、サイトマップにも入れない）。OGP は相性診断の共通画像。
+import Base from '../../layouts/Base.astro';
+import { getCharacters } from '../../lib/characters';
+import { jsonForScript, MATCH_PATH } from '../../lib/match';
+import { getMatchContent } from '../../lib/match-data';
+import { AISHO_OG_IMAGE } from '../../lib/site';
+
+const names = Object.fromEntries(getCharacters().map((c) => [c.slug, { name: c.name, main: c.theme.main }]));
+// 説明文。送り主がいるとき（?from= が正しいとき）は 13_相性診断.json の intro.waiting（招かれた友達への言葉）に差し替える
+const lead = '20問の性格診断と生年月日から、あなたの「星のいきもの」と星座がわかります（約3分）。答え終わると、2人の相性が見られます。';
+const waiting = getMatchContent().intro.waiting;
+---
+
+<Base
+  title="相性診断のお誘い"
+  description="友達から相性診断のお誘いが届きました。20問に答えると、あなたの星のいきものと2人の相性がわかります。"
+  ogImage={AISHO_OG_IMAGE}
+  noindex
+>
+  <div class="invite-hero">
+    <div class="from" id="from" hidden>
+      <img id="from-image" src="" alt="" width="200" height="200" />
+      <p class="from-text"><strong id="from-title"></strong> さんから、<br />相性診断のお誘いです</p>
+    </div>
+    <h1 id="generic-title">相性診断</h1>
+    <p class="lead" id="lead" data-waiting={waiting}>{lead}</p>
+  </div>
+
+  <div class="actions">
+    <a class="button" id="go-shindan" href="/shindan/">診断して相性を見る（約3分）</a>
+    <a class="button secondary" id="go-select" href="/select/">タイプを知っている</a>
+  </div>
+  <p class="muted note">生年月日は星座を決めるためだけに使い、送り主にも運営にも送られません。相性ページのURLに入るのは、2人の結果（いきものと星座）だけです。</p>
+  <p class="muted note" id="manual">2人の星座といきものが分かっているなら、<a href={MATCH_PATH}>選んで相性を見る</a>こともできます。</p>
+</Base>
+
+<script type="application/json" id="invite-names" set:html={jsonForScript(names)}></script>
+
+<script>
+  import { characterSrc } from '../../lib/assets';
+  import { getSign } from '../../lib/signs';
+  import { readFrom, selectPath, shindanPath } from '../../lib/match';
+
+  const ref = readFrom(location.search);
+  if (ref) {
+    const names: Record<string, { name: string; main: string }> = JSON.parse(document.getElementById('invite-names')!.textContent ?? '{}');
+    const t = names[ref.typeSlug];
+    const title = `${getSign(ref.signId)?.name ?? ''}の ${t?.name ?? ''}`;
+    document.getElementById('from-title')!.textContent = title;
+    const img = document.getElementById('from-image') as HTMLImageElement;
+    img.src = characterSrc(ref.typeSlug);
+    img.alt = `${t?.name ?? ''}のキャラクター`;
+    const from = document.getElementById('from')!;
+    if (t) from.style.setProperty('--theme', t.main);
+    from.hidden = false;
+    document.getElementById('generic-title')!.hidden = true;
+    const lead = document.getElementById('lead')!;
+    if (lead.dataset.waiting) lead.textContent = lead.dataset.waiting;
+    (document.getElementById('go-shindan') as HTMLAnchorElement).href = shindanPath(ref.slug);
+    (document.getElementById('go-select') as HTMLAnchorElement).href = selectPath(ref.slug);
+    document.title = `${title}さんから相性診断のお誘い｜${document.title.split('｜').pop()}`;
+  }
+</script>
+
+<style>
+  .invite-hero { text-align: center; padding-top: 8px; }
+  .from[hidden], h1[hidden] { display: none; }
+  .from img { display: block; width: min(200px, 55vw); height: auto; margin: 0 auto; filter: drop-shadow(0 0 24px color-mix(in srgb, var(--theme, var(--lavender)) 55%, transparent)); }
+  .from-text { font-size: 1.3rem; font-weight: 700; line-height: 1.6; margin: 12px 0 0; }
+  .from-text strong { color: var(--gold); }
+  .lead { margin-top: 16px; }
+  .actions { display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: 24px; }
+  .note { text-align: center; margin-top: 16px; }
+</style>

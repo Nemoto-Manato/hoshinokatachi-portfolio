@@ -1,0 +1,227 @@
+---
+// 組み合わせの結果ページ（192ページを静的に生成）。
+// URLにはタイプと星座だけを含め、生年月日などの個人情報は含めない（法務判断書 #4）。
+// タイトルは「しし座の いきもの3」（星座＋キャラ名、D-011）。キャラは lib/characters.ts。
+// 文言は 02_content/combinations/{typeSlug}.json（lib/content.ts）。無い組み合わせは「制作中」と表示する。
+import Base from '../../layouts/Base.astro';
+import RewardGate from '../../components/RewardGate.astro';
+import Character from '../../components/Character.astro';
+import { COMBINATIONS, type Combination } from '../../lib/combination';
+import { getCharacter, resultTitle } from '../../lib/characters';
+import { getCombinationText } from '../../lib/content';
+import { resultOgImage, sharePage, shareText } from '../../lib/site';
+import { inviteText, inviteUrl, MATCH_PATH, xIntentUrl } from '../../lib/match';
+import { getMatchContent } from '../../lib/match-data';
+
+export function getStaticPaths() {
+  return COMBINATIONS.map((c) => ({ params: { slug: c.slug }, props: { c } }));
+}
+
+const { c } = Astro.props as { c: Combination };
+const ch = getCharacter(c.type.slug);
+const text = getCombinationText(c.slug);
+const title = resultTitle(ch, c.sign.name);
+const pageTitle = text ? `${title}「${text.nickname}」` : title;
+// 友達を相性診断に招くリンク（D-019c）。URL に入るのは結果の slug だけ
+const invite = inviteUrl(c.slug, Astro.site!);
+const inviteMessage = inviteText(title, getMatchContent().intro.invite);
+const description = text
+  ? `${title}「${text.nickname}」：${text.hitokoto}`
+  : `${title}（守護星：${ch.guardian}）のあなたの性格。${ch.concept}。`;
+// 広告部分のチラ見せ（RewardGate）。順番は下の見出し（h2）と同じにする。
+const gateItems = text
+  ? [
+      { title: '恋愛', text: text.love },
+      { title: '仕事', text: text.work },
+      { title: '人間関係', text: text.relationships },
+      ...(text.compatible.length > 0
+        ? [{
+            title: `相性のいい組み合わせTOP${text.compatible.length}`,
+            text: text.compatible.map((m, i) => `${i + 1}位 ${m.label}：${m.reason}`).join('　'),
+          }]
+        : []),
+      { title: '伸びしろ', text: text.growth },
+    ]
+  : [];
+---
+
+<Base title={pageTitle} description={description} ogImage={resultOgImage(c.slug)}>
+  <div class="result-hero" style={`--theme: ${ch.theme.main}; --theme-sub: ${ch.theme.sub}`}>
+    <Character type={ch} size={240} loading="eager" class="hero-character" />
+    <p class="muted">あなたの結果は…</p>
+    <h1>
+      <span class="sign">{c.sign.name}の</span>
+      <span class="name">{ch.name}</span>
+      {text && <span class="nickname">「{text.nickname}」</span>}
+    </h1>
+    <p class="guardian">守護星：{ch.guardian}</p>
+  </div>
+  {c.overlap && (
+    <p class="overlap">
+      ★ 重なり星：守護星と{c.sign.name}の支配星が、どちらも「{c.sign.rulerName}」。192通りのうち11通りだけの組み合わせです。
+    </p>
+  )}
+
+  <section class="card aruaru-card" style={`--theme: ${ch.theme.main}`}>
+    <h2>{ch.name}のあるある</h2>
+    <ul class="aruaru">
+      {ch.aruaru.map((a) => <li>{a}</li>)}
+    </ul>
+    <p class="muted small">いくつ当てはまった？</p>
+  </section>
+
+  <div class="actions">
+    <a class="button" href={sharePage(c.slug)}>画像を保存してシェア</a>
+    <button class="button secondary" id="share" type="button" data-text={shareText(title)}>結果をシェアする</button>
+  </div>
+
+  <section class="card invite" id="invite" data-url={invite} data-text={inviteMessage}>
+    <h2>友達との相性を見る</h2>
+    <p>招待リンクを友達に送ろう。友達が20問に答えると、2人のいきもの同士・星座同士の相性がわかります。</p>
+    <div class="invite-actions">
+      <button class="button" id="invite-share" type="button">友達との相性を見る</button>
+    </div>
+    <div class="invite-fallback" id="invite-fallback" hidden>
+      <p class="muted" id="invite-status" role="status"></p>
+      <input class="invite-url" type="text" readonly value={invite} aria-label="招待リンク" />
+      <a class="button secondary" id="invite-x" href={xIntentUrl(inviteMessage, invite)} target="_blank" rel="noopener">Xでポストする</a>
+    </div>
+    <p class="muted small">相手の星座といきものを知っているなら、<a href={`${MATCH_PATH}?b=${c.slug}`}>選んで相性を見る</a>こともできます。</p>
+  </section>
+
+  {text && (
+    <>
+      <p class="hitokoto">{text.hitokoto}</p>
+      <section class="card">
+        <h2>基本の性格</h2>
+        <p>{text.basic}</p>
+      </section>
+    </>
+  )}
+
+  <section class="card">
+    <h2>{ch.name}（守護星：{ch.guardian}）</h2>
+    <p class="muted">{ch.concept}</p>
+    <p>{ch.summary}</p>
+    <a href={`/type/${c.type.slug}/`}>{ch.name}について詳しく</a>
+  </section>
+
+  <section class="card">
+    <h2>生まれた星座：{c.sign.name}</h2>
+    <p>エレメント：{c.sign.element}／支配星：{c.sign.rulerName}</p>
+    <p>キーワード：{c.sign.keywords.join('、')}</p>
+    <a href={`/sign/${c.sign.id}/`}>{c.sign.name}について詳しく</a>
+  </section>
+
+  {text ? (
+    <RewardGate items={gateItems}>
+      <section class="card">
+        <h2>恋愛</h2>
+        <p>{text.love}</p>
+      </section>
+      <section class="card">
+        <h2>仕事</h2>
+        <p>{text.work}</p>
+      </section>
+      <section class="card">
+        <h2>人間関係</h2>
+        <p>{text.relationships}</p>
+      </section>
+      {text.compatible.length > 0 && (
+        <section class="card">
+          <h2>相性のいい組み合わせTOP{text.compatible.length}</h2>
+          <ol class="compatible">
+            {text.compatible.map((m) => (
+              <li>
+                <a href={`/result/${m.slug}/`}>{m.label}</a>
+                <p>{m.reason}</p>
+              </li>
+            ))}
+          </ol>
+        </section>
+      )}
+      <section class="card">
+        <h2>伸びしろ</h2>
+        <p>{text.growth}</p>
+      </section>
+    </RewardGate>
+  ) : (
+    <section class="card locked">
+      <h2>{title}の恋愛・仕事・人間関係</h2>
+      <p class="muted">組み合わせごとの詳しい結果は制作中です（公開時は、広告を見ると読めるようになります）。</p>
+    </section>
+  )}
+
+  <div class="actions">
+    <a class="button" href={sharePage(c.slug)}>画像を保存してシェア</a>
+    <a href="/shindan/">もう一度診断する</a>
+  </div>
+</Base>
+
+<script>
+  import { shareLink } from '../../lib/share-client';
+
+  const inviteBox = document.getElementById('invite') as HTMLElement;
+  document.getElementById('invite-share')!.addEventListener('click', () => {
+    void shareLink(inviteBox.dataset.text ?? '', inviteBox.dataset.url ?? '', {
+      box: document.getElementById('invite-fallback')!,
+      status: document.getElementById('invite-status')!,
+      x: document.getElementById('invite-x') as HTMLAnchorElement,
+    });
+  });
+  document.querySelector<HTMLInputElement>('.invite-url')?.addEventListener('focus', (e) => (e.target as HTMLInputElement).select());
+
+  const button = document.getElementById('share') as HTMLButtonElement;
+  button.addEventListener('click', async () => {
+    const text = button.dataset.text ?? '';
+    const url = location.href;
+    if (navigator.share) {
+      try {
+        await navigator.share({ text, url });
+      } catch {
+        // ユーザーがキャンセルした場合は何もしない
+      }
+      return;
+    }
+    const intent = new URL('https://x.com/intent/post');
+    intent.searchParams.set('text', text);
+    intent.searchParams.set('url', url);
+    window.open(intent, '_blank', 'noopener');
+  });
+</script>
+
+<style>
+  .result-hero { text-align: center; }
+  .result-hero :global(.hero-character) { width: min(240px, 60vw); margin: 8px auto 0; }
+  .result-hero p { margin-bottom: 0; }
+  .result-hero h1 { margin: 4px 0 0; }
+  .sign { display: block; font-size: 1.1rem; color: var(--theme-sub); }
+  .name { display: block; font-size: 1.9rem; line-height: 1.3; }
+  .guardian { display: inline-block; margin-top: 8px; padding: 2px 14px; border-radius: 999px; border: 1px solid var(--theme); color: var(--theme-sub); font-weight: 700; font-size: 0.9rem; }
+  section.card { margin-top: 16px; }
+  section.card h2 { margin-top: 0; }
+  .nickname { display: block; font-size: 1.1rem; color: var(--gold); margin-top: 4px; }
+  .hitokoto { font-size: 1.1rem; font-weight: 700; color: var(--peach); border-left: 3px solid var(--peach); padding-left: 12px; margin-top: 24px; }
+  .overlap { background: rgba(242, 210, 122, 0.12); border: 1px solid var(--gold); color: var(--gold); border-radius: 12px; padding: 12px 16px; font-weight: 600; }
+  .aruaru-card { border-color: var(--theme); }
+  .aruaru { list-style: none; padding: 0; margin: 0; }
+  .aruaru li { position: relative; padding-left: 2em; font-weight: 700; }
+  .aruaru li + li { margin-top: 8px; }
+  .aruaru li::before {
+    content: '✓'; position: absolute; left: 0; top: 0.25em; width: 1.35em; height: 1.35em; line-height: 1.35em;
+    text-align: center; border-radius: 6px; background: var(--theme); color: var(--night-deep); font-size: 0.9em;
+  }
+  .small { font-size: 0.8rem; margin: 8px 0 0; }
+  .locked { border-style: dashed; }
+  .compatible { padding-left: 1.4em; margin: 0; }
+  .compatible li + li { margin-top: 12px; }
+  .compatible a { font-weight: 700; }
+  .compatible p { margin: 4px 0 0; }
+  .actions { display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: 24px; }
+  .invite { margin-top: 24px; border-color: var(--gold); text-align: center; }
+  .invite h2 { color: var(--gold); }
+  .invite-actions { margin: 12px 0; }
+  .invite-fallback { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .invite-fallback[hidden] { display: none; }
+  .invite-url { width: 100%; font-size: 0.85rem; padding: 8px; border-radius: 8px; border: 1px solid var(--border); background: var(--night); color: var(--text); }
+</style>

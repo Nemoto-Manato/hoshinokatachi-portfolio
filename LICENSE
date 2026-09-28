@@ -1,0 +1,16 @@
+Copyright (c) 2026 16タイプ星座診断〜ほしのかたち〜 運営者. All rights reserved.
+
+このリポジトリのソースコードは、閲覧（ポートフォリオとしての確認）のためだけに公開しています。
+著作権者の書面による許可なく、コードの全部または一部を複製・改変・再配布・商用利用・
+他のサービスへの転用をすることを禁じます。
+
+This repository is published for viewing purposes only (as a portfolio).
+No permission is granted to copy, modify, redistribute, use commercially, or
+reuse any part of this code in other projects without prior written permission
+from the copyright holder.
+
+例外 / Exceptions:
+- src/assets/fonts/ の Noto Sans JP は SIL Open Font License 1.1 に従います（src/assets/fonts/OFL.txt）。
+  The Noto Sans JP fonts in src/assets/fonts/ are licensed under the SIL Open Font License 1.1.
+- 依存パッケージ（package.json）は、それぞれのライセンスに従います。
+  Third-party packages are subject to their own licenses.

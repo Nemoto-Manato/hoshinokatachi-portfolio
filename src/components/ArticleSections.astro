@@ -1,0 +1,25 @@
+---
+// 解説ページの本文（見出し＋段落）。原本は 02_content/07〜09 の JSON（lib/articles.ts が読む）。
+import type { ArticleSection } from '../lib/articles';
+
+interface Props {
+  sections: ArticleSection[];
+}
+
+const { sections } = Astro.props;
+---
+
+{sections.length > 0 && (
+  <div class="article">
+    {sections.map((s) => (
+      <section>
+        <h2>{s.heading}</h2>
+        {s.paragraphs.map((p) => <p>{p}</p>)}
+      </section>
+    ))}
+  </div>
+)}
+
+<style>
+  .article p { margin: 0 0 1em; }
+</style>

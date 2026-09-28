@@ -1,0 +1,14 @@
+---
+// 未決定の項目。値が決まるまでは「【未定：…】」と目立つ形で表示する（lib/legal.ts）。
+interface Props {
+  value: string | null;
+  label: string;
+}
+const { value, label } = Astro.props;
+---
+
+{value ?? <mark class="undecided">【未定：{label}】</mark>}
+
+<style>
+  .undecided { background: rgba(255, 155, 155, 0.2); color: var(--danger); border: 1px dashed var(--danger); border-radius: 4px; padding: 0 4px; font-weight: 700; }
+</style>

@@ -1,0 +1,317 @@
+---
+// 相性ページ（D-019c）：/aisho/match/?a=sun-leo&b=moon-cancer
+//   a：招待した人、b：招待された人（いま診断した人）。手動で選ぶときは b＝あなた、a＝相手。
+// 静的な1ページで、クエリはブラウザで読む（lib/match.ts で確かめ、不正な値は無視する）。表示に使うデータ（いきもの・星座の名前、
+// 11_相性早見表.json、13_相性診断.json）はビルド時に JSON にして埋め込む（lib/match-data.ts）。無い部分は出さない。
+// a・b がそろわなければ、2人分の星座といきものを選ぶフォームを出す（生年月日は使わない）。
+// URL に入るのは結果の slug だけ（個人情報は入れない）。クエリで中身が変わるので noindex、サイトマップにも入れない。
+// 「相性◯%」のような点数は出さない（表現ガイドライン）。
+import Base from '../../layouts/Base.astro';
+import { getCharacters } from '../../lib/characters';
+import { jsonForScript } from '../../lib/match';
+import { getMatchData } from '../../lib/match-data';
+import { SIGNS } from '../../lib/signs';
+import { AISHO_OG_IMAGE } from '../../lib/site';
+import { STORY_HEIGHT, STORY_WIDTH } from '../../lib/og';
+
+const data = getMatchData();
+const chars = getCharacters();
+---
+
+<Base
+  title="相性診断"
+  description="2人の星のいきものと星座から、相性と付き合い方のヒントを占います。友達を誘って、2人の相性を見てみよう。"
+  ogImage={AISHO_OG_IMAGE}
+  noindex
+>
+  <div id="match-view" hidden>
+    <p class="muted kicker">2人の相性</p>
+    <div class="pair-hero">
+      <figure class="person" id="person-a">
+        <img class="person-image" src="" alt="" width="160" height="160" />
+        <figcaption><span class="person-sign"></span><strong class="person-name"></strong></figcaption>
+      </figure>
+      <span class="times" aria-hidden="true">×</span>
+      <figure class="person" id="person-b">
+        <img class="person-image" src="" alt="" width="160" height="160" />
+        <figcaption><span class="person-sign"></span><strong class="person-name"></strong></figcaption>
+      </figure>
+    </div>
+    <h1 class="pair-title" id="pair-title"></h1>
+
+    <section class="card" id="sec-animal" hidden>
+      <h2>いきもの同士の関係</h2>
+      <p class="relation-badge" id="animal-badge"><span class="badge-icon" aria-hidden="true"></span><span class="badge-name"></span></p>
+      <p class="relation-desc muted" id="animal-desc"></p>
+      <p class="relation-text" id="animal-text"></p>
+    </section>
+
+    <section class="card" id="sec-sign" hidden>
+      <h2 id="sign-heading">星座同士の関係</h2>
+      <p class="relation-badge" id="sign-badge" hidden><span class="badge-name"></span></p>
+      <p class="relation-desc muted" id="sign-desc" hidden></p>
+      <h3 id="sign-title" hidden></h3>
+      <p class="relation-text" id="sign-text"></p>
+    </section>
+
+    <section class="card" id="sec-advice" hidden>
+      <h2>2人へのアドバイス</h2>
+      <dl class="advice">
+        <div data-advice="friend" hidden><dt>友達なら</dt><dd></dd></div>
+        <div data-advice="love" hidden><dt>恋人なら</dt><dd></dd></div>
+        <div data-advice="work" hidden><dt>仕事なら</dt><dd></dd></div>
+      </dl>
+    </section>
+
+    <section class="card card-section" id="sec-card">
+      <h2>相性カード</h2>
+      <p class="muted">画像を長押し（パソコンは右クリック）して保存し、Xやストーリーズでシェアしてね。</p>
+      <figure class="story">
+        <img id="card-image" src="" alt="" width={STORY_WIDTH} height={STORY_HEIGHT} loading="lazy" />
+      </figure>
+      <div class="actions">
+        <button class="button" id="card-share" type="button" hidden>相性カードをシェアする</button>
+        <a class="button secondary" id="card-save" href="" download>相性カードを保存する</a>
+        <a class="button secondary" id="card-x" href="" target="_blank" rel="noopener">Xでポストする</a>
+      </div>
+    </section>
+
+    <section class="card" id="sec-links">
+      <h2>2人それぞれの結果を見る</h2>
+      <ul class="result-links">
+        <li><a id="link-a" href=""></a></li>
+        <li><a id="link-b" href=""></a></li>
+      </ul>
+    </section>
+
+    <div class="actions">
+      <button class="button" id="invite-share" type="button">ほかの友達も誘う</button>
+      <div class="invite-fallback" id="invite-fallback" hidden>
+        <p class="muted" id="invite-status" role="status"></p>
+        <a class="button secondary" id="invite-x" href="" target="_blank" rel="noopener">Xでポストする</a>
+      </div>
+      <a href="/aisho/">16いきもの相性早見表</a>
+      <a href="/aisho/match/">別の2人の相性を見る</a>
+    </div>
+  </div>
+
+  <div id="match-form-wrap">
+    <h1>相性診断</h1>
+    <p class="muted">
+      2人の星座と星のいきものを選ぶと、相性と付き合い方のヒントが見られます。自分のいきものがまだ分からない人は、先に<a href="/shindan/">診断</a>してね（約3分）。
+    </p>
+    <form id="match-form" novalidate>
+      {[
+        { key: 'b', legend: 'あなた' },
+        { key: 'a', legend: '相手' },
+      ].map((p) => (
+        <fieldset class="card person-field">
+          <legend>{p.legend}</legend>
+          <label>
+            <span>星座</span>
+            <select name={`${p.key}-sign`}>
+              <option value="">選んでください</option>
+              {SIGNS.map((s) => <option value={s.id}>{s.name}（{s.period}）</option>)}
+            </select>
+          </label>
+          <label>
+            <span>星のいきもの</span>
+            <select name={`${p.key}-type`}>
+              <option value="">選んでください</option>
+              {chars.map((c) => <option value={c.slug}>{c.name}</option>)}
+            </select>
+          </label>
+        </fieldset>
+      ))}
+      <p id="match-error" class="error" role="alert"></p>
+      <div class="actions"><button class="button" type="submit">相性を見る</button></div>
+    </form>
+    <p class="muted">友達のいきものが分からないときは、自分の結果ページの「友達との相性を見る」から、友達を診断に誘えます。</p>
+  </div>
+</Base>
+
+<script type="application/json" id="match-data" set:html={jsonForScript(data)}></script>
+
+<script>
+  import { characterSrc } from '../../lib/assets';
+  import { combinationSlug } from '../../lib/combination';
+  import {
+    buildMatchView, inviteText, inviteUrl, matchPath, matchShareText, readMatchQuery, xIntentUrl, type MatchData, type MatchPerson,
+  } from '../../lib/match';
+  import { shareLink } from '../../lib/share-client';
+
+  const data: MatchData = JSON.parse(document.getElementById('match-data')!.textContent ?? '{}');
+  const { a, b } = readMatchQuery(location.search);
+  const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
+
+  function fillPerson(el: HTMLElement, p: MatchPerson) {
+    const img = el.querySelector<HTMLImageElement>('.person-image')!;
+    img.src = characterSrc(p.ref.typeSlug);
+    img.alt = `${p.name}のキャラクター`;
+    el.querySelector('.person-sign')!.textContent = `${p.signName}の`;
+    el.querySelector('.person-name')!.textContent = p.name;
+    el.style.setProperty('--theme', p.main);
+    el.style.setProperty('--theme-sub', p.sub);
+  }
+
+  if (a && b) {
+    const view = buildMatchView(data, a, b);
+    $('match-form-wrap').hidden = true;
+    $('match-view').hidden = false;
+    fillPerson($('person-a'), view.a);
+    fillPerson($('person-b'), view.b);
+    $('pair-title').textContent = `${view.a.title} × ${view.b.title}`;
+    document.title = `${view.a.title} × ${view.b.title} の相性｜${document.title.split('｜').pop()}`;
+
+    if (view.animal) {
+      const badge = $('animal-badge');
+      badge.style.setProperty('--c', view.animal.label.color);
+      badge.querySelector('.badge-icon')!.textContent = view.animal.label.icon;
+      badge.querySelector('.badge-name')!.textContent = view.animal.label.name;
+      $('animal-desc').textContent = view.animal.label.description;
+      $('animal-text').textContent = view.animal.text;
+      $('sec-animal').hidden = false;
+      if (view.card.kira) $('sec-animal').classList.add('kira');
+    }
+
+    if (view.sign) {
+      $('sign-heading').textContent = `星座同士の関係：${view.a.signName}×${view.b.signName}`;
+      if (view.sign.relation) {
+        $('sign-badge').querySelector('.badge-name')!.textContent = view.sign.relation.name;
+        $('sign-badge').hidden = false;
+        if (view.sign.relation.description) {
+          $('sign-desc').textContent = view.sign.relation.description;
+          $('sign-desc').hidden = false;
+        }
+      }
+      if (view.sign.title) {
+        $('sign-title').textContent = view.sign.title;
+        $('sign-title').hidden = false;
+      }
+      $('sign-text').textContent = view.sign.text;
+      $('sec-sign').hidden = false;
+    }
+
+    if (view.advice) {
+      for (const key of ['friend', 'love', 'work'] as const) {
+        const text = view.advice[key];
+        const row = document.querySelector<HTMLElement>(`[data-advice="${key}"]`)!;
+        if (text) {
+          row.querySelector('dd')!.textContent = text;
+          row.hidden = false;
+        }
+      }
+      $('sec-advice').hidden = false;
+    }
+
+    // 相性カード（いきもの同士の画像。早見表に無い組み合わせは画像が無いので出さない）
+    const shareText = matchShareText(view);
+    const pageUrl = new URL(matchPath(a.slug, b.slug), location.origin).href;
+    if (view.animal) {
+      const fileName = `hoshinokatachi-aisho-${a.typeSlug}-${b.typeSlug}.png`;
+      const img = $<HTMLImageElement>('card-image');
+      img.src = view.card.story;
+      img.alt = `${view.a.name}と${view.b.name}の相性カード。2体の関係は「${view.animal.label.name}」`;
+      const save = $<HTMLAnchorElement>('card-save');
+      save.href = view.card.story;
+      save.download = fileName;
+      const probe = new File([new Uint8Array(1)], fileName, { type: 'image/png' });
+      if (navigator.canShare?.({ files: [probe] })) {
+        const btn = $<HTMLButtonElement>('card-share');
+        btn.hidden = false;
+        btn.addEventListener('click', async () => {
+          try {
+            const blob = await (await fetch(view.card.story)).blob();
+            await navigator.share({ files: [new File([blob], fileName, { type: 'image/png' })], text: `${shareText}\n${pageUrl}` });
+          } catch {
+            // キャンセル・失敗したときは何もしない（長押しで保存できる）
+          }
+        });
+      }
+    } else {
+      $('card-image').closest('figure')!.hidden = true;
+      $('card-save').hidden = true;
+    }
+    $<HTMLAnchorElement>('card-x').href = xIntentUrl(shareText, pageUrl);
+
+    const linkA = $<HTMLAnchorElement>('link-a');
+    linkA.href = `/result/${a.slug}/`;
+    linkA.textContent = `${view.a.title}の結果`;
+    const linkB = $<HTMLAnchorElement>('link-b');
+    linkB.href = `/result/${b.slug}/`;
+    linkB.textContent = `${view.b.title}の結果`;
+
+    // ほかの友達も誘う：b（招待されて、いま診断した人）から誘う
+    $('invite-share').addEventListener('click', () => {
+      void shareLink(inviteText(view.b.title, data.intro.invite), inviteUrl(b.slug, location.origin), {
+        box: $('invite-fallback'),
+        status: $('invite-status'),
+        x: $<HTMLAnchorElement>('invite-x'),
+      });
+    });
+  } else {
+    // 手動で選ぶ。クエリに正しいほうがあれば、選んだ状態にしておく
+    const form = $<HTMLFormElement>('match-form');
+    for (const [key, ref] of [['a', a], ['b', b]] as const) {
+      if (!ref) continue;
+      form.querySelector<HTMLSelectElement>(`[name="${key}-sign"]`)!.value = ref.signId;
+      form.querySelector<HTMLSelectElement>(`[name="${key}-type"]`)!.value = ref.typeSlug;
+    }
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const f = new FormData(form);
+      const pick = (key: string) => {
+        const sign = String(f.get(`${key}-sign`) ?? '');
+        const type = String(f.get(`${key}-type`) ?? '');
+        return sign && type ? combinationSlug(type, sign) : undefined;
+      };
+      const mine = pick('b');
+      const theirs = pick('a');
+      if (!mine || !theirs) {
+        $('match-error').textContent = `${!mine ? 'あなた' : '相手'}の星座と星のいきものを選んでください。`;
+        return;
+      }
+      location.href = matchPath(theirs, mine);
+    });
+  }
+</script>
+
+<style>
+  .kicker { text-align: center; margin: 8px 0 0; }
+  .pair-hero { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 8px; }
+  .person { margin: 0; flex: 1 1 0; max-width: 220px; text-align: center; }
+  .person-image {
+    display: block; width: 100%; max-width: 160px; height: auto; aspect-ratio: 1 / 1; margin: 0 auto;
+    filter: drop-shadow(0 0 20px color-mix(in srgb, var(--theme, var(--lavender)) 55%, transparent));
+  }
+  .person figcaption { line-height: 1.4; margin-top: 4px; }
+  .person-sign { display: block; font-size: 0.85rem; color: var(--theme-sub, var(--muted)); }
+  .person-name { display: block; font-size: 1rem; }
+  .times { font-size: 2rem; font-weight: 700; color: var(--lavender); }
+  .pair-title { font-size: 1.15rem; text-align: center; margin: 16px 0 0; }
+  section.card { margin-top: 16px; }
+  section.card h2 { margin-top: 0; }
+  section.card h3 { margin: 12px 0 4px; font-size: 1.05rem; }
+  section[hidden], [hidden] { display: none !important; }
+  .relation-badge {
+    display: inline-flex; align-items: center; gap: 8px; margin: 0; padding: 4px 16px; border-radius: 999px; font-weight: 700; font-size: 1.2rem;
+    background: color-mix(in srgb, var(--c, var(--lavender)) 28%, transparent); border: 1px solid var(--c, var(--lavender));
+  }
+  .relation-desc { margin: 8px 0 0; }
+  .relation-text { margin: 12px 0 0; font-weight: 600; }
+  .kira { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold), 0 0 24px rgba(242, 210, 122, 0.25); }
+  .advice { margin: 0; }
+  .advice div + div { margin-top: 12px; }
+  .advice dt { font-weight: 700; color: var(--mint); }
+  .advice dd { margin: 2px 0 0; }
+  .story { margin: 12px auto; max-width: 320px; }
+  .story img { display: block; width: 100%; height: auto; border-radius: 12px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45); }
+  .result-links { margin: 0; padding-left: 1.2em; }
+  .result-links a { font-weight: 700; }
+  .actions { display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: 24px; }
+  .invite-fallback { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .person-field { margin: 16px 0 0; display: grid; gap: 12px; }
+  .person-field legend { font-weight: 700; color: var(--lavender); padding: 0 4px; }
+  .person-field label { display: grid; gap: 4px; }
+  .person-field select { width: 100%; }
+</style>

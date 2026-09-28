@@ -1,0 +1,38 @@
+---
+// 読みもの。本文の原本は 02_content/09_読みもの*.json（lib/articles.ts）。ファイルが無ければページを作らない。
+import Base from '../../layouts/Base.astro';
+import ArticleSections from '../../components/ArticleSections.astro';
+import { getColumns, type Column } from '../../lib/articles';
+import { COLUMN_CATEGORIES, columnCategoryId } from '../../lib/column-categories';
+
+export function getStaticPaths() {
+  return getColumns().map((c) => ({ params: { slug: c.slug }, props: { c } }));
+}
+
+const { c } = Astro.props as { c: Column };
+const categoryId = columnCategoryId(c.slug);
+const category = COLUMN_CATEGORIES.find((g) => g.id === categoryId)!;
+const others = getColumns().filter((o) => o.slug !== c.slug);
+// 同じカテゴリの記事を先に、全体で最大6本
+const sameCategory = others.filter((o) => columnCategoryId(o.slug) === categoryId);
+const related = [...sameCategory, ...others.filter((o) => !sameCategory.includes(o))].slice(0, 6);
+---
+
+<Base title={c.title} description={c.description}>
+  <p class="muted"><a href="/column/">読みもの</a> ＞ <a href={`/column/#${category.id}`}>{category.name}</a></p>
+  <h1>{c.title}</h1>
+  <p class="muted">{c.description}</p>
+  <ArticleSections sections={c.sections} />
+
+  <p><a class="button" href="/shindan/">自分の星のいきものを診断する</a></p>
+
+  {related.length > 0 && (
+    <>
+      <h2>ほかの読みもの</h2>
+      <ul>
+        {related.map((o) => <li><a href={`/column/${o.slug}/`}>{o.title}</a></li>)}
+      </ul>
+    </>
+  )}
+  <p><a href="/column/">読みもの一覧へ</a> ・ <a href="/glossary/">用語集</a></p>
+</Base>

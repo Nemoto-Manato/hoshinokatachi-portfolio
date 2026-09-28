@@ -1,0 +1,80 @@
+---
+// 用語集。原本は 02_content/12_用語集.json（lib/glossary.ts）。五十音順、各用語にアンカー（/glossary#守護星）。
+// 関連記事は実在する読みものだけリンクにする。原本が無いあいだは「準備中」と表示し、検索に出さない（noindex）。
+import Base from '../layouts/Base.astro';
+import { getColumns } from '../lib/articles';
+import { getGlossary, groupByRow } from '../lib/glossary';
+
+const terms = getGlossary();
+const groups = groupByRow(terms);
+const columns = new Map(getColumns().map((c) => [c.slug, c]));
+for (const t of terms) {
+  for (const r of t.related) if (!columns.has(r)) console.warn(`[glossary] ${t.term} の related「${r}」という読みものが無い（リンクしない）`);
+}
+---
+
+<Base
+  title="用語集"
+  description="守護星・支配星・エレメント・重なり星・境目の日など、ほしのかたちの占いに出てくる言葉を五十音順にまとめました。"
+  noindex={terms.length === 0}
+>
+  <h1>用語集</h1>
+  <p class="muted">ほしのかたちの占いに出てくる言葉を、五十音順にまとめました。くわしいお話は<a href="/column/">読みもの</a>へ。</p>
+  {terms.length === 0 ? (
+    <p>ただいま準備中です。</p>
+  ) : (
+    <>
+      <nav class="row-nav" aria-label="五十音">
+        {groups.map((g) => <a href={`#row-${g.row}`}>{g.row}</a>)}
+      </nav>
+      <nav class="term-index card" aria-label="用語の一覧">
+        {terms.map((t) => <a href={`#${t.anchor}`}>{t.term}</a>)}
+      </nav>
+      {groups.map((g) => (
+        <section class="row" id={`row-${g.row}`}>
+          <h2>{g.row}</h2>
+          <dl>
+            {g.terms.map((t) => (
+              <div class="term" id={t.anchor}>
+                <dt>
+                  <a class="term-link" href={`#${t.anchor}`}>{t.term}</a>
+                  <span class="reading">{t.reading}</span>
+                </dt>
+                <dd>
+                  {t.paragraphs.map((p) => <p>{p}</p>)}
+                  {t.related.some((r) => columns.has(r)) && (
+                    <p class="related">
+                      関連する読みもの：
+                      {t.related.filter((r) => columns.has(r)).map((r, i) => (
+                        <>{i > 0 && '、'}<a href={`/column/${r}/`}>{columns.get(r)!.title}</a></>
+                      ))}
+                    </p>
+                  )}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+      ))}
+    </>
+  )}
+  <p><a class="button" href="/shindan/">自分の星のいきものを診断する</a></p>
+</Base>
+
+<style>
+  .row-nav { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0 8px; }
+  .row-nav a {
+    min-width: 3em; text-align: center; padding: 2px 10px; border-radius: 999px;
+    border: 1px solid var(--border); color: var(--text); text-decoration: none; font-size: 0.85rem;
+  }
+  .term-index { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 0.9rem; }
+  dl { margin: 0; }
+  .term { padding: 12px 0; border-bottom: 1px solid var(--border); scroll-margin-top: 16px; }
+  .term:target { background: var(--accent-soft); border-radius: 8px; padding-left: 8px; padding-right: 8px; }
+  dt { font-weight: 700; font-size: 1.05rem; }
+  .term-link { color: var(--gold); text-decoration: none; }
+  .reading { margin-left: 8px; color: var(--muted); font-size: 0.8rem; font-weight: 400; }
+  dd { margin: 4px 0 0; }
+  dd p { margin: 0 0 0.6em; }
+  .related { font-size: 0.9rem; color: var(--muted); }
+</style>
